@@ -1,0 +1,23 @@
+Báo cáo ngày 30/7
+
+1. Công việc đã thực hiện:
+
+Do hôm qua mới nhận đề tài nên bọn em chưa tiến hành triển khai.
+
+Trong ngày hôm nay, bọn em đã:
+
+Thiết lập dự án và tích hợp các thư viện cần thiết.
+
+Quyết định sử dụng các công nghệ chính:
+
+Axios: để gọi API và xử lý dữ liệu từ backend.
+
+Ant Design: làm thư viện giao diện chính cho hệ thống UI.
+
+Thống nhất các tính năng cốt lõi (core features) cần phát triển.
+
+Tìm hiểu quy trình làm việc nhóm trên Git/GitHub.
+
+2. Khó khăn gặp phải:
+
+Nhóm vẫn đang gặp khó khăn trong việc thống nhất UI/UX, đặc biệt là ở khâu lựa chọn bố cục, màu sắc và cách tổ chức thành phần giao diện sao cho tối ưu trải nghiệm người dùng và dễ triển khai.
