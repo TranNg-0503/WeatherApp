@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Input, Spin, Typography, Card } from "antd";
+import React, { useEffect, useState, useContext } from "react";
+import { Input, Spin, Typography, Card, Switch } from "antd";
 import WeatherCard from "../components/WeatherCard";
 import HourlyForecastCard from "../components/HourlyForecastCard";
+import { ThemeContext } from "../contexts/ThemeContext";
 import {
   fetchCurrentWeather,
   fetchHourlyForecast,
@@ -10,6 +11,7 @@ import {
 const { Title } = Typography;
 
 const Home = () => {
+  const { darkMode, toggleTheme } = useContext(ThemeContext);
   const [city, setCity] = useState("Ho Chi Minh");
   const [weatherData, setWeatherData] = useState(null);
   const [hourlyForecast, setHourlyForecast] = useState([]);
@@ -71,7 +73,6 @@ const Home = () => {
     <div
       style={{
         padding: 24,
-        backgroundColor: "#101336",
         minHeight: "100vh",
         color: "#fff",
       }}
@@ -139,9 +140,7 @@ const Home = () => {
                       style={{
                         backgroundColor: isSelected ? "#1677ff" : "#2a2f4a",
                         color: "#fff",
-                        borderRadius: isSelected
-                          ? "12px 12px 0 0"
-                          : "12px",
+                        borderRadius: isSelected ? "12px 12px 0 0" : "12px",
                         border: isSelected
                           ? "2px solid #fff"
                           : "1px solid transparent",
