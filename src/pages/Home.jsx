@@ -5,6 +5,7 @@ import HourlyForecastCard from "../components/HourlyForecastCard";
 import {
   fetchCurrentWeather,
   fetchHourlyForecast,
+  fetchCurrentWeatherByCityName,
 } from "../services/weatherService";
 
 const { Title } = Typography;
@@ -20,8 +21,13 @@ const Home = () => {
   const loadWeather = async (cityName) => {
     setLoading(true);
     try {
-      const current = await fetchCurrentWeather(cityName);
-      const hourly = await fetchHourlyForecast(cityName);
+      const current = await fetchCurrentWeatherByCityName(cityName);
+      const { coord } = current;
+
+      const hourly = await fetchHourlyForecast({
+        lat: coord.lat,
+        lon: coord.lon,
+      });
 
       setWeatherData(current);
       setHourlyForecast(hourly);
@@ -37,8 +43,21 @@ const Home = () => {
       setSelectedDate(Object.keys(groups)[0]);
     } catch (err) {
       console.error("Lỗi khi lấy thời tiết:", err);
+
+      if (err?.response?.status === 404) {
+        alert("Không tìm thấy thành phố này. Vui lòng thử lại.");
+      } else {
+        alert("Đã xảy ra lỗi khi lấy dữ liệu thời tiết.");
+      }
+
+      // Xoá dữ liệu cũ nếu lỗi
+      setWeatherData(null);
+      setHourlyForecast([]);
+      setGroupedByDay({});
+      setSelectedDate(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -93,7 +112,11 @@ const Home = () => {
         <>
           {/* Vùng hiển thị thông tin hiện tại */}
           <div style={{ marginBottom: 32 }}>
-            <WeatherCard weatherData={weatherData} />
+            {weatherData ? (
+              <WeatherCard weatherData={weatherData} />
+            ) : (
+              <div>Không có dữ liệu thời tiết</div>
+            )}
           </div>
 
           {/* Dashboard Dự báo */}
@@ -139,9 +162,7 @@ const Home = () => {
                       style={{
                         backgroundColor: isSelected ? "#1677ff" : "#2a2f4a",
                         color: "#fff",
-                        borderRadius: isSelected
-                          ? "12px 12px 0 0"
-                          : "12px",
+                        borderRadius: isSelected ? "12px 12px 0 0" : "12px",
                         border: isSelected
                           ? "2px solid #fff"
                           : "1px solid transparent",
