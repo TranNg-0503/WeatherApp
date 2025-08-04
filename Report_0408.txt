@@ -1,0 +1,3 @@
+Report ngày 04/08/2025
+Nội dung: Chỉnh sửa logic tìm kiếm, thêm theme sáng/tối, style lại UI
+Khó khăn: Lỗi fetch API
