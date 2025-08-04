@@ -1,0 +1,5 @@
+Report ngày 04/08/2025
+Hôm qua: em tạo logic và gọi api hourlyforecast
+Hôm nay: fix bug dashboard hourly forecast
+Khó khăn: Lỗi UI, em chưa hiện thực được 100% theo thiết kế 
+
