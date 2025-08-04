@@ -1,19 +1,41 @@
-// src/App.jsx
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { BrowserRouter } from "react-router-dom";
+import { ConfigProvider, theme as antdTheme } from "antd";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Routing from "./Routing";
-const App = () => {
+import { ThemeProvider, ThemeContext } from "./contexts/ThemeContext"; // Thêm dòng này
+
+const ThemedApp = () => {
+  const { darkMode } = useContext(ThemeContext);
+
   return (
-    <BrowserRouter>
-      <Navbar />
-      <div style={{ minHeight: "80vh", padding: "24px" }}>
-        <Routing />
-      </div>
-      <Footer />
-    </BrowserRouter>
+    <ConfigProvider
+      theme={{
+        algorithm: darkMode
+          ? antdTheme.darkAlgorithm
+          : antdTheme.defaultAlgorithm,
+        token: {
+          colorBgBase: darkMode ? "#0d1117" : "#ffffff",
+          colorTextBase: darkMode ? "#ffffff" : "#000000",
+        },
+      }}
+    >
+      <BrowserRouter>
+        <Navbar />
+        <div style={{ minHeight: "80vh", padding: "24px" }}>
+          <Routing />
+        </div>
+        <Footer />
+      </BrowserRouter>
+    </ConfigProvider>
   );
 };
+
+const App = () => (
+  <ThemeProvider>
+    <ThemedApp />
+  </ThemeProvider>
+);
 
 export default App;

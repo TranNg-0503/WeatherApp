@@ -3,6 +3,7 @@ import { Input, Spin, Typography, Card, Button } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import WeatherCard from "../components/WeatherCard";
 import HourlyForecastCard from "../components/HourlyForecastCard";
+import { ThemeContext } from "../contexts/ThemeContext";
 import {
   fetchCurrentWeather,
   fetchHourlyForecast,
@@ -11,6 +12,7 @@ import {
 const { Title } = Typography;
 
 const Home = () => {
+  const { darkMode, toggleTheme } = useContext(ThemeContext);
   const [city, setCity] = useState("Ho Chi Minh");
   const [weatherData, setWeatherData] = useState(null);
   const [hourlyForecast, setHourlyForecast] = useState([]);
@@ -94,7 +96,6 @@ const Home = () => {
     <div
       style={{
         padding: 24,
-        backgroundColor: "#101336",
         minHeight: "100vh",
         color: "#fff",
       }}
