@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Input, Spin, Typography, Card } from "antd";
+import React, { useEffect, useState, useRef } from "react";
+import { Input, Spin, Typography, Card, Button } from "antd";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import WeatherCard from "../components/WeatherCard";
 import HourlyForecastCard from "../components/HourlyForecastCard";
 import {
@@ -16,6 +17,24 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [groupedByDay, setGroupedByDay] = useState({});
+  const [expandedAll, setExpandedAll] = useState(false);
+
+  const dateScrollRef = useRef(null);
+  const hourlyScrollRef = useRef(null);
+  const [showHourlyScrollButtons, setShowHourlyScrollButtons] = useState(false);
+
+  const scrollX = (ref, direction) => {
+    if (ref.current) {
+      ref.current.scrollBy({ left: direction * 300, behavior: "smooth" });
+    }
+  };
+
+  const checkHourlyOverflow = () => {
+    const el = hourlyScrollRef.current;
+    if (el) {
+      setShowHourlyScrollButtons(el.scrollWidth > el.clientWidth);
+    }
+  };
 
   const loadWeather = async (cityName) => {
     setLoading(true);
@@ -44,6 +63,10 @@ const Home = () => {
   useEffect(() => {
     loadWeather(city);
   }, []);
+
+  useEffect(() => {
+    checkHourlyOverflow();
+  }, [selectedDate, groupedByDay]);
 
   const formatDateLabel = (dateStr) => {
     const date = new Date(dateStr);
@@ -91,12 +114,10 @@ const Home = () => {
         <Spin />
       ) : (
         <>
-          {/* Vùng hiển thị thông tin hiện tại */}
           <div style={{ marginBottom: 32 }}>
             <WeatherCard weatherData={weatherData} />
           </div>
 
-          {/* Dashboard Dự báo */}
           <Card
             style={{
               backgroundColor: "#1f243d",
@@ -112,96 +133,139 @@ const Home = () => {
             <div
               style={{
                 display: "flex",
-                gap: 16,
-                overflowX: "auto",
-                paddingBottom: 16,
-                alignItems: "flex-start",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 24,
               }}
             >
-              {Object.keys(groupedByDay).map((dateStr) => {
-                const icon = getIconFromDate(dateStr);
-                const temps = getTempRange(groupedByDay[dateStr]);
-                const isSelected = selectedDate === dateStr;
+              <Button
+                icon={<LeftOutlined />}
+                onClick={() => scrollX(dateScrollRef, -1)}
+              />
+              <div
+                ref={dateScrollRef}
+                style={{
+                  display: "flex",
+                  overflowX: "auto",
+                  gap: 16,
+                  flex: 1,
+                  padding: "0 8px",
+                }}
+              >
+                {Object.keys(groupedByDay).map((dateStr) => {
+                  const icon = getIconFromDate(dateStr);
+                  const temps = getTempRange(groupedByDay[dateStr]);
+                  const isSelected = selectedDate === dateStr;
 
-                return (
+                  return (
+                    <div
+                      key={dateStr}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        flexShrink: 0,
+                        width: 160,
+                      }}
+                    >
+                      <Card
+                        onClick={() => setSelectedDate(dateStr)}
+                        hoverable
+                        style={{
+                          backgroundColor: isSelected ? "#1677ff" : "#2a2f4a",
+                          color: "#fff",
+                          borderRadius: 12,
+                          border: isSelected
+                            ? "2px solid #fff"
+                            : "1px solid transparent",
+                          cursor: "pointer",
+                          textAlign: "center",
+                        }}
+                        bodyStyle={{ padding: 12 }}
+                      >
+                        <div style={{ fontWeight: 600 }}>
+                          {formatDateLabel(dateStr)}
+                        </div>
+                        {icon && (
+                          <img
+                            src={`https://openweathermap.org/img/wn/${icon}@2x.png`}
+                            alt="weather-icon"
+                            style={{ width: 40, height: 40 }}
+                          />
+                        )}
+                        <div style={{ fontSize: 14 }}>{temps}</div>
+                      </Card>
+                    </div>
+                  );
+                })}
+              </div>
+              <Button
+                icon={<RightOutlined />}
+                onClick={() => scrollX(dateScrollRef, 1)}
+              />
+            </div>
+
+            {/* Dự báo theo giờ */}
+            {selectedDate && (
+              <Card
+                style={{
+                  background: "#2a2f4a",
+                  color: "#fff",
+                  marginTop: 16,
+                  borderRadius: 12,
+                  width: "100%",
+                }}
+                bodyStyle={{
+                  padding: 12,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontWeight: 500, fontSize: 14 }}>Dự báo theo giờ</div>
+                  <Button size="small" onClick={() => setExpandedAll((prev) => !prev)}>
+                    {expandedAll ? "Thu gọn tất cả" : "Xem tất cả"}
+                  </Button>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    width: "100%",
+                  }}
+                >
+                  {showHourlyScrollButtons && (
+                    <Button
+                      icon={<LeftOutlined />}
+                      onClick={() => scrollX(hourlyScrollRef, -1)}
+                    />
+                  )}
                   <div
-                    key={dateStr}
+                    ref={hourlyScrollRef}
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      flexShrink: 0,
-                      minWidth: isSelected ? 360 : 120,
+                      gap: 12,
+                      overflowX: "auto",
+                      flex: 1,
+                      padding: "0 8px",
                     }}
                   >
-                    <Card
-                      onClick={() => setSelectedDate(dateStr)}
-                      hoverable
-                      style={{
-                        backgroundColor: isSelected ? "#1677ff" : "#2a2f4a",
-                        color: "#fff",
-                        borderRadius: isSelected
-                          ? "12px 12px 0 0"
-                          : "12px",
-                        border: isSelected
-                          ? "2px solid #fff"
-                          : "1px solid transparent",
-                        cursor: "pointer",
-                        textAlign: "center",
-                      }}
-                      bodyStyle={{ padding: 12 }}
-                    >
-                      <div style={{ fontWeight: 600 }}>
-                        {formatDateLabel(dateStr)}
+                    {groupedByDay[selectedDate]?.map((hour, idx) => (
+                      <div key={idx} style={{ minWidth: 160 }}>
+                        <HourlyForecastCard data={hour} expandedAll={expandedAll} />
                       </div>
-                      {icon && (
-                        <img
-                          src={`https://openweathermap.org/img/wn/${icon}@2x.png`}
-                          alt="weather-icon"
-                          style={{ width: 40, height: 40 }}
-                        />
-                      )}
-                      <div style={{ fontSize: 14 }}>{temps}</div>
-                    </Card>
-
-                    {isSelected && (
-                      <div
-                        style={{
-                          background: "#2a2f4a",
-                          padding: 12,
-                          borderRadius: "0 0 12px 12px",
-                          border: "2px solid #fff",
-                          borderTop: "none",
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontWeight: 500,
-                            fontSize: 14,
-                            marginBottom: 8,
-                            color: "#fff",
-                          }}
-                        >
-                          Dự báo theo giờ
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 12,
-                            overflowX: "auto",
-                          }}
-                        >
-                          {groupedByDay[dateStr]?.map((hour, idx) => (
-                            <div key={idx} style={{ minWidth: 100 }}>
-                              <HourlyForecastCard data={hour} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    ))}
                   </div>
-                );
-              })}
-            </div>
+                  {showHourlyScrollButtons && (
+                    <Button
+                      icon={<RightOutlined />}
+                      onClick={() => scrollX(hourlyScrollRef, 1)}
+                    />
+                  )}
+                </div>
+              </Card>
+            )}
           </Card>
         </>
       )}

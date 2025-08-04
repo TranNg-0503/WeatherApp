@@ -1,65 +1,95 @@
-import React from "react";
-import { Card, Typography, Row, Col } from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Typography } from "antd";
+import {
+  ClockCircleOutlined,
+  CompressOutlined,
+  ExpandOutlined,
+} from "@ant-design/icons";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
-const HourlyForecastCard = ({ data }) => {
-  const date = new Date(data.dt * 1000);
-  const now = new Date();
-  const isCurrentHour =
-    now.getHours() === date.getHours() &&
-    now.toDateString() === date.toDateString();
+const HourlyForecastCard = ({ data, expandedAll }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const hour = `${date.getHours()}:00`;
-  const temp = Math.round(data.main.temp);
-  const feelsLike = Math.round(data.main.feels_like);
-  const humidity = data.main.humidity;
-  const windSpeed = Math.round(data.wind.speed);
-  const pressure = data.main.pressure;
-  const cloud = data.clouds?.all;
-  const description = data.weather[0]?.description;
-  const icon = data.weather[0]?.icon;
+  useEffect(() => {
+    if (expandedAll !== null) {
+      setIsExpanded(expandedAll);
+    }
+  }, [expandedAll]);
+
+  const handleToggle = () => {
+    if (expandedAll !== null) return;
+    setIsExpanded((prev) => !prev);
+  };
+
+  const {
+    dt,
+    main,
+    weather,
+    wind,
+    clouds,
+  } = data;
+
+  const dateObj = new Date(dt * 1000);
+  const timeString = dateObj.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const dateString = dateObj.toLocaleDateString("vi-VN");
 
   return (
     <Card
       hoverable
+      onClick={handleToggle}
       style={{
-        width: 140,
-        minWidth: 140,
-        background: isCurrentHour ? "#1677ff" : "#1f243d",
-        borderRadius: 16,
-        color: "white",
-        border: isCurrentHour ? "2px solid #fff" : "none",
-        transition: "all 0.3s ease-in-out",
-        flexShrink: 0,
+        width: 180,
+        margin: "8px",
+        border: "1px solid #ddd",
+        borderRadius: "10px",
+        position: "relative",
+        background: "#1f243d",
+        color: "#fff",
       }}
-      bodyStyle={{ padding: 12 }}
+      bodyStyle={{ padding: "12px" }}
     >
-      <Row justify="center" style={{ marginBottom: 4 }}>
-        <Text strong style={{ color: "#fff" }}>
-          {hour}
-        </Text>
-      </Row>
-      <Row justify="center">
+      <div style={{ textAlign: "center" }}>
         <img
-          src={`https://openweathermap.org/img/wn/${icon}@2x.png`}
-          alt={description}
-          style={{ width: 48, height: 48 }}
+          src={`https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`}
+          alt="weather icon"
+          style={{ width: "64px", height: "64px" }}
         />
-      </Row>
-      <Row justify="center" style={{ marginBottom: 4 }}>
-        <Text style={{ fontSize: 16, color: "#fff" }}>{temp}°</Text>
-      </Row>
-      <Row justify="center" style={{ fontSize: 12, color: "#ccc", marginBottom: 8 }}>
-        {description}
-      </Row>
-      <Row gutter={[4, 4]} style={{ fontSize: 12, color: "#fff" }}>
-        <Col span={12}>🌡 {feelsLike}°</Col>
-        <Col span={12}>💧 {humidity}%</Col>
-        <Col span={12}>🌬 {windSpeed} km/h</Col>
-        <Col span={12}>☁ {cloud}%</Col>
-        <Col span={24}>📈 {pressure} mb</Col>
-      </Row>
+        <Text strong style={{ color: "#fff" }}>{weather[0].description}</Text>
+        <div>
+          <Text style={{ color: "#aaa" }}>{timeString}</Text>
+        </div>
+        <Title level={4} style={{ margin: "4px 0", color: "#fff" }}>
+          {Math.round(main.temp)}°C
+        </Title>
+      </div>
+
+      {isExpanded && (
+        <div style={{ marginTop: "8px", color: "#fff", fontSize: 13 }}>
+          <div><ClockCircleOutlined /> {dateString}</div>
+          <div>💧 Độ ẩm: {main.humidity}%</div>
+          <div>🌬️ Gió: {wind.speed} m/s ({wind.deg}°)</div>
+          <div>☁️ Mây: {clouds.all}%</div>
+          <div>⏲️ Áp suất: {main.pressure} hPa</div>
+        </div>
+      )}
+
+      {expandedAll === null && (
+        <div
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            fontSize: "14px",
+            color: "#999",
+          }}
+        >
+          {isExpanded ? <CompressOutlined /> : <ExpandOutlined />}
+        </div>
+      )}
     </Card>
   );
 };
