@@ -48,8 +48,10 @@ const Home = () => {
   const loadWeather = async (cityName) => {
     setLoading(true);
     try {
-      const current = await fetchCurrentWeather(cityName);
-      const hourly = await fetchHourlyForecast(cityName);
+      const [current, hourly] = await Promise.all([
+        fetchCurrentWeather(cityName),
+        fetchHourlyForecast(cityName),
+      ]);
 
       setWeatherData(current);
       setHourlyForecast(hourly);
@@ -99,19 +101,27 @@ const Home = () => {
     )}°`;
   };
 
-  useEffect(() => {
-    const loadMonthlyWeather = async () => {
-      try {
-        const data = await fetchMonthlyWeather(city, monthOffset);
-        setMonthlyWeather(data.days);
-        setMonthLabel(`${data.month}/${data.year}`);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  const loadMonthlyWeather = async (city, monthOffset) => {
+    try {
+      const data = await fetchMonthlyWeather(city, monthOffset);
+      setMonthlyWeather(data.days);
+      setMonthLabel(`${data.month}/${data.year}`);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    loadMonthlyWeather();
-  }, [monthOffset, city]);
+  const handleLoadNextMonthWeather =  async () => {
+    const newMonthOffset = monthOffset + 1; 
+    setMonthOffset(newMonthOffset);
+    await loadMonthlyWeather(city, newMonthOffset);
+  }
+
+  const handleLoadPrevMonthWeather =  async () => {
+    const newMonthOffset = monthOffset - 1; 
+    setMonthOffset(newMonthOffset);
+    await loadMonthlyWeather(city, newMonthOffset);
+  }
 
   return (
     <div style={styles.container}>
@@ -281,14 +291,14 @@ const Home = () => {
           <div style={styles.monthlyNav}>
             <button
               style={styles.navButton}
-              onClick={() => setMonthOffset((prev) => prev - 1)}
+              onClick={() => handleLoadPrevMonthWeather()}
             >
               Tháng trước
             </button>
             <h2 style={styles.monthTitle}>Tháng {monthLabel}</h2>
             <button
               style={styles.navButton}
-              onClick={() => setMonthOffset((prev) => prev + 1)}
+              onClick={() => handleLoadNextMonthWeather()}
             >
               Tháng sau
             </button>
