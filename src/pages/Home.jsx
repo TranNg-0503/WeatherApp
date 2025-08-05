@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
+import stylesHome from "./Home.styles";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { Input, Spin, Typography, Card, Button } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import WeatherCard from "../components/WeatherCard";
 import HourlyForecastCard from "../components/HourlyForecastCard";
 import { ThemeContext } from "../contexts/ThemeContext";
 import {
-  fetchCurrentWeather,
+  fetchCurrentWeather,  
   fetchHourlyForecast,
+  fetchMonthlyWeather,
 } from "../services/weatherService";
 
 const { Title } = Typography;
@@ -21,6 +23,11 @@ const Home = () => {
   const [groupedByDay, setGroupedByDay] = useState({});
   const [expandedAll, setExpandedAll] = useState(false);
 
+  const styles = stylesHome(darkMode);
+  const [monthOffset, setMonthOffset] = useState(0);
+  const [monthlyWeather, setMonthlyWeather] = useState([]);
+  const [monthLabel, setMonthLabel] = useState("");
+  
   const dateScrollRef = useRef(null);
   const hourlyScrollRef = useRef(null);
   const [showHourlyScrollButtons, setShowHourlyScrollButtons] = useState(false);
@@ -92,14 +99,22 @@ const Home = () => {
     )}°`;
   };
 
+  useEffect(() => {
+    const loadMonthlyWeather = async () => {
+      try {
+        const data = await fetchMonthlyWeather(city, monthOffset);
+        setMonthlyWeather(data.days);
+        setMonthLabel(`${data.month}/${data.year}`);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadMonthlyWeather();
+  }, [monthOffset, city]);
+
   return (
-    <div
-      style={{
-        padding: 24,
-        minHeight: "100vh",
-        color: "#fff",
-      }}
-    >
+    <div style={styles.container}>
       <Input.Search
         placeholder="Tìm kiếm vị trí"
         onSearch={(value) => {
@@ -108,26 +123,19 @@ const Home = () => {
           loadWeather(value);
         }}
         enterButton
-        style={{ maxWidth: 300, marginBottom: 24 }}
+        style={styles.searchInput}
       />
 
       {loading ? (
         <Spin />
       ) : (
         <>
-          <div style={{ marginBottom: 32 }}>
+          <div style={styles.currentWeather}>
             <WeatherCard weatherData={weatherData} />
           </div>
 
-          <Card
-            style={{
-              backgroundColor: "#1f243d",
-              borderRadius: 16,
-              marginTop: 0,
-            }}
-            bodyStyle={{ padding: 24 }}
-          >
-            <Title level={4} style={{ color: "#fff", marginBottom: 16 }}>
+          <Card style={styles.forecastCard} styles={{ body: styles.cardBody }}>
+            <Title level={4} style={styles.cardTitle}>
               Dự báo từng ngày (chọn ngày để xem chi tiết theo giờ)
             </Title>
 
@@ -268,6 +276,35 @@ const Home = () => {
               </Card>
             )}
           </Card>
+
+          {/* === Dự báo hàng tháng === */}
+          <div style={styles.monthlyNav}>
+            <button
+              style={styles.navButton}
+              onClick={() => setMonthOffset((prev) => prev - 1)}
+            >
+              Tháng trước
+            </button>
+            <h2 style={styles.monthTitle}>Tháng {monthLabel}</h2>
+            <button
+              style={styles.navButton}
+              onClick={() => setMonthOffset((prev) => prev + 1)}
+            >
+              Tháng sau
+            </button>
+          </div>
+
+          <div style={styles.monthlyGrid}>
+            {monthlyWeather.map((day, idx) => (
+              <Card key={idx} style={styles.monthlyCard}>
+                <div>{day.datetime}</div>
+                <div>
+                  🌡️ {day.tempmax}° / {day.tempmin}°
+                </div>
+                <div>☁️ {day.conditions}</div>
+              </Card>
+            ))}
+          </div>
         </>
       )}
     </div>
