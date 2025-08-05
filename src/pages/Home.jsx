@@ -1,3 +1,4 @@
+import stylesHome from "./Home.styles";
 import React, { useEffect, useState, useContext } from "react";
 import { Input, Spin, Typography, Card, Switch } from "antd";
 import WeatherCard from "../components/WeatherCard";
@@ -6,6 +7,7 @@ import { ThemeContext } from "../contexts/ThemeContext";
 import {
   fetchCurrentWeather,
   fetchHourlyForecast,
+  fetchMonthlyWeather,
 } from "../services/weatherService";
 
 const { Title } = Typography;
@@ -18,6 +20,10 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [groupedByDay, setGroupedByDay] = useState({});
+  const styles = stylesHome(darkMode);
+  const [monthOffset, setMonthOffset] = useState(0);
+  const [monthlyWeather, setMonthlyWeather] = useState([]);
+  const [monthLabel, setMonthLabel] = useState("");
 
   const loadWeather = async (cityName) => {
     setLoading(true);
@@ -69,14 +75,22 @@ const Home = () => {
     )}°`;
   };
 
+  useEffect(() => {
+    const loadMonthlyWeather = async () => {
+      try {
+        const data = await fetchMonthlyWeather(city, monthOffset);
+        setMonthlyWeather(data.days);
+        setMonthLabel(`${data.month}/${data.year}`);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadMonthlyWeather();
+  }, [monthOffset, city]);
+
   return (
-    <div
-      style={{
-        padding: 24,
-        minHeight: "100vh",
-        color: "#fff",
-      }}
-    >
+    <div style={styles.container}>
       <Input.Search
         placeholder="Tìm kiếm vị trí"
         onSearch={(value) => {
@@ -85,40 +99,23 @@ const Home = () => {
           loadWeather(value);
         }}
         enterButton
-        style={{ maxWidth: 300, marginBottom: 24 }}
+        style={styles.searchInput}
       />
 
       {loading ? (
         <Spin />
       ) : (
         <>
-          {/* Vùng hiển thị thông tin hiện tại */}
-          <div style={{ marginBottom: 32 }}>
+          <div style={styles.currentWeather}>
             <WeatherCard weatherData={weatherData} />
           </div>
 
-          {/* Dashboard Dự báo */}
-          <Card
-            style={{
-              backgroundColor: "#1f243d",
-              borderRadius: 16,
-              marginTop: 0,
-            }}
-            bodyStyle={{ padding: 24 }}
-          >
-            <Title level={4} style={{ color: "#fff", marginBottom: 16 }}>
+          <Card style={styles.forecastCard} styles={{ body: styles.cardBody }}>
+            <Title level={4} style={styles.cardTitle}>
               Dự báo từng ngày (chọn ngày để xem chi tiết theo giờ)
             </Title>
 
-            <div
-              style={{
-                display: "flex",
-                gap: 16,
-                overflowX: "auto",
-                paddingBottom: 16,
-                alignItems: "flex-start",
-              }}
-            >
+            <div style={styles.dailyList}>
               {Object.keys(groupedByDay).map((dateStr) => {
                 const icon = getIconFromDate(dateStr);
                 const temps = getTempRange(groupedByDay[dateStr]);
@@ -128,9 +125,7 @@ const Home = () => {
                   <div
                     key={dateStr}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      flexShrink: 0,
+                      ...styles.dailyItemContainer,
                       minWidth: isSelected ? 360 : 120,
                     }}
                   >
@@ -138,59 +133,34 @@ const Home = () => {
                       onClick={() => setSelectedDate(dateStr)}
                       hoverable
                       style={{
+                        ...styles.dailyItemCard,
                         backgroundColor: isSelected ? "#1677ff" : "#2a2f4a",
-                        color: "#fff",
                         borderRadius: isSelected ? "12px 12px 0 0" : "12px",
                         border: isSelected
                           ? "2px solid #fff"
                           : "1px solid transparent",
-                        cursor: "pointer",
-                        textAlign: "center",
                       }}
-                      bodyStyle={{ padding: 12 }}
+                      styles={{ body: styles.dailyItemBody }}
                     >
-                      <div style={{ fontWeight: 600 }}>
+                      <div style={styles.dayLabel}>
                         {formatDateLabel(dateStr)}
                       </div>
                       {icon && (
                         <img
                           src={`https://openweathermap.org/img/wn/${icon}@2x.png`}
                           alt="weather-icon"
-                          style={{ width: 40, height: 40 }}
+                          style={styles.weatherIcon}
                         />
                       )}
-                      <div style={{ fontSize: 14 }}>{temps}</div>
+                      <div style={styles.tempRange}>{temps}</div>
                     </Card>
 
                     {isSelected && (
-                      <div
-                        style={{
-                          background: "#2a2f4a",
-                          padding: 12,
-                          borderRadius: "0 0 12px 12px",
-                          border: "2px solid #fff",
-                          borderTop: "none",
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontWeight: 500,
-                            fontSize: 14,
-                            marginBottom: 8,
-                            color: "#fff",
-                          }}
-                        >
-                          Dự báo theo giờ
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 12,
-                            overflowX: "auto",
-                          }}
-                        >
+                      <div style={styles.hourlyContainer}>
+                        <div style={styles.hourlyTitle}>Dự báo theo giờ</div>
+                        <div style={styles.hourlyList}>
                           {groupedByDay[dateStr]?.map((hour, idx) => (
-                            <div key={idx} style={{ minWidth: 100 }}>
+                            <div key={idx} style={styles.hourlyItem}>
                               <HourlyForecastCard data={hour} />
                             </div>
                           ))}
@@ -202,6 +172,35 @@ const Home = () => {
               })}
             </div>
           </Card>
+
+          {/* === Dự báo hàng tháng === */}
+          <div style={styles.monthlyNav}>
+            <button
+              style={styles.navButton}
+              onClick={() => setMonthOffset((prev) => prev - 1)}
+            >
+              Tháng trước
+            </button>
+            <h2 style={styles.monthTitle}>Tháng {monthLabel}</h2>
+            <button
+              style={styles.navButton}
+              onClick={() => setMonthOffset((prev) => prev + 1)}
+            >
+              Tháng sau
+            </button>
+          </div>
+
+          <div style={styles.monthlyGrid}>
+            {monthlyWeather.map((day, idx) => (
+              <Card key={idx} style={styles.monthlyCard}>
+                <div>{day.datetime}</div>
+                <div>
+                  🌡️ {day.tempmax}° / {day.tempmin}°
+                </div>
+                <div>☁️ {day.conditions}</div>
+              </Card>
+            ))}
+          </div>
         </>
       )}
     </div>
