@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Input, Spin, Typography, Card, Button } from "antd";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { Input, Spin, Typography, Card, Radio, Collapse } from "antd";
 import WeatherCard from "../components/WeatherCard";
-import HourlyForecastCard from "../components/HourlyForecastCard";
 import {
   fetchCurrentWeather,
   fetchHourlyForecast,
 } from "../services/weatherService";
+import DaySelector from "../components/DaySelector";
+import HourlyForecastList from "../components/HourlyForecastList";
+import DataView from "../components/DataView";
 
 const { Title } = Typography;
+const { Panel } = Collapse;
 
 const Home = () => {
   const [city, setCity] = useState("Ho Chi Minh");
@@ -18,10 +20,11 @@ const Home = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [groupedByDay, setGroupedByDay] = useState({});
   const [expandedAll, setExpandedAll] = useState(false);
+  const [showHourlyScrollButtons, setShowHourlyScrollButtons] = useState(false);
+  const [viewType, setViewType] = useState("rain");
 
   const dateScrollRef = useRef(null);
   const hourlyScrollRef = useRef(null);
-  const [showHourlyScrollButtons, setShowHourlyScrollButtons] = useState(false);
 
   const scrollX = (ref, direction) => {
     if (ref.current) {
@@ -67,15 +70,6 @@ const Home = () => {
   useEffect(() => {
     checkHourlyOverflow();
   }, [selectedDate, groupedByDay]);
-
-  const formatDateLabel = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "short",
-      day: "numeric",
-      month: "numeric",
-    });
-  };
 
   const getIconFromDate = (dateStr) => {
     const entries = groupedByDay[dateStr];
@@ -130,141 +124,43 @@ const Home = () => {
               Dự báo từng ngày (chọn ngày để xem chi tiết theo giờ)
             </Title>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginBottom: 24,
-              }}
+            {/* ✅ Thêm Radio chọn kiểu xem: lượng mưa, nhiệt độ, gió */}
+            <Radio.Group
+              value={viewType}
+              onChange={(e) => setViewType(e.target.value)}
+              style={{ marginBottom: 16 }}
             >
-              <Button
-                icon={<LeftOutlined />}
-                onClick={() => scrollX(dateScrollRef, -1)}
-              />
-              <div
-                ref={dateScrollRef}
-                style={{
-                  display: "flex",
-                  overflowX: "auto",
-                  gap: 16,
-                  flex: 1,
-                  padding: "0 8px",
-                }}
-              >
-                {Object.keys(groupedByDay).map((dateStr) => {
-                  const icon = getIconFromDate(dateStr);
-                  const temps = getTempRange(groupedByDay[dateStr]);
-                  const isSelected = selectedDate === dateStr;
+              <Radio.Button value="rain">Lượng mưa</Radio.Button>
+              <Radio.Button value="temp">Nhiệt độ</Radio.Button>
+              <Radio.Button value="wind">Gió</Radio.Button>
+            </Radio.Group>
 
-                  return (
-                    <div
-                      key={dateStr}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        flexShrink: 0,
-                        width: 160,
-                      }}
-                    >
-                      <Card
-                        onClick={() => setSelectedDate(dateStr)}
-                        hoverable
-                        style={{
-                          backgroundColor: isSelected ? "#1677ff" : "#2a2f4a",
-                          color: "#fff",
-                          borderRadius: 12,
-                          border: isSelected
-                            ? "2px solid #fff"
-                            : "1px solid transparent",
-                          cursor: "pointer",
-                          textAlign: "center",
-                        }}
-                        bodyStyle={{ padding: 12 }}
-                      >
-                        <div style={{ fontWeight: 600 }}>
-                          {formatDateLabel(dateStr)}
-                        </div>
-                        {icon && (
-                          <img
-                            src={`https://openweathermap.org/img/wn/${icon}@2x.png`}
-                            alt="weather-icon"
-                            style={{ width: 40, height: 40 }}
-                          />
-                        )}
-                        <div style={{ fontSize: 14 }}>{temps}</div>
-                      </Card>
-                    </div>
-                  );
-                })}
-              </div>
-              <Button
-                icon={<RightOutlined />}
-                onClick={() => scrollX(dateScrollRef, 1)}
-              />
-            </div>
+            <DaySelector
+              groupedByDay={groupedByDay}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              getIconFromDate={getIconFromDate}
+              getTempRange={getTempRange}
+              dateScrollRef={dateScrollRef}
+              scrollX={scrollX}
+              viewType={viewType} // ✅ Truyền viewType vào DaySelector
+              
+            />
 
-            {/* Dự báo theo giờ */}
             {selectedDate && (
-              <Card
-                style={{
-                  background: "#2a2f4a",
-                  color: "#fff",
-                  marginTop: 16,
-                  borderRadius: 12,
-                  width: "100%",
-                }}
-                bodyStyle={{
-                  padding: 12,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontWeight: 500, fontSize: 14 }}>Dự báo theo giờ</div>
-                  <Button size="small" onClick={() => setExpandedAll((prev) => !prev)}>
-                    {expandedAll ? "Thu gọn tất cả" : "Xem tất cả"}
-                  </Button>
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    width: "100%",
-                  }}
-                >
-                  {showHourlyScrollButtons && (
-                    <Button
-                      icon={<LeftOutlined />}
-                      onClick={() => scrollX(hourlyScrollRef, -1)}
-                    />
-                  )}
-                  <div
-                    ref={hourlyScrollRef}
-                    style={{
-                      display: "flex",
-                      gap: 12,
-                      overflowX: "auto",
-                      flex: 1,
-                      padding: "0 8px",
-                    }}
-                  >
-                    {groupedByDay[selectedDate]?.map((hour, idx) => (
-                      <div key={idx} style={{ minWidth: 160 }}>
-                        <HourlyForecastCard data={hour} expandedAll={expandedAll} />
-                      </div>
-                    ))}
-                  </div>
-                  {showHourlyScrollButtons && (
-                    <Button
-                      icon={<RightOutlined />}
-                      onClick={() => scrollX(hourlyScrollRef, 1)}
-                    />
-                  )}
-                </div>
-              </Card>
+              <>
+                <HourlyForecastList
+                  selectedDate={selectedDate}
+                  groupedByDay={groupedByDay}
+                  hourlyScrollRef={hourlyScrollRef}
+                  scrollX={scrollX}
+                  expandedAll={expandedAll}
+                  setExpandedAll={setExpandedAll}
+                  showHourlyScrollButtons={showHourlyScrollButtons}
+                />
+
+
+              </>
             )}
           </Card>
         </>

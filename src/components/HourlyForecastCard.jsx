@@ -53,19 +53,48 @@ const HourlyForecastCard = ({ data, expandedAll }) => {
       bodyStyle={{ padding: "12px" }}
     >
       <div style={{ textAlign: "center" }}>
-        <img
-          src={`https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`}
-          alt="weather icon"
-          style={{ width: "64px", height: "64px" }}
-        />
-        <Text strong style={{ color: "#fff" }}>{weather[0].description}</Text>
-        <div>
-          <Text style={{ color: "#aaa" }}>{timeString}</Text>
-        </div>
-        <Title level={4} style={{ margin: "4px 0", color: "#fff" }}>
-          {Math.round(main.temp)}°C
-        </Title>
-      </div>
+  <img
+    src={`https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`}
+    alt="weather icon"
+    style={{ width: "64px", height: "64px", display: "block", margin: "0 auto" }}
+  />
+  <div>
+    <Text
+      strong
+      style={{
+        color: "#fff",
+        display: "block",
+        textAlign: "center",
+        marginTop: 4,
+      }}
+    >
+      {weather[0].description}
+    </Text>
+  </div>
+  <div>
+    <Text
+      style={{
+        color: "#aaa",
+        display: "block",
+        textAlign: "center",
+        marginTop: 2,
+      }}
+    >
+      {timeString}
+    </Text>
+  </div>
+  <Title
+    level={4}
+    style={{
+      margin: "4px 0",
+      color: "#fff",
+      textAlign: "center",
+    }}
+  >
+    {Math.round(main.temp)}°C
+  </Title>
+</div>
+
 
       {isExpanded && (
         <div style={{ marginTop: "8px", color: "#fff", fontSize: 13 }}>
