@@ -1,0 +1,2 @@
+05/08: Thêm MonthlyForecast ở trang home, tách css, làm sạch code
+06/08: Tìm API Monthly, mockup dữ liệu test. Thêm trang riêng MonthlyForecast
