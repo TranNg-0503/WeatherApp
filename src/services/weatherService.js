@@ -27,6 +27,7 @@ export const fetchCurrentWeather = async (city) => {
     throw new Error("Lỗi khi lấy dữ liệu thời tiết");
   }
 };
+
 export const fetchHourlyForecast = async (city) => {
   if (!API_KEY) {
     console.error("API_KEY is missing!");
@@ -52,41 +53,82 @@ export const fetchHourlyForecast = async (city) => {
 };
 
 // Lấy dữ liệu thời tiết theo tháng
-export const fetchMonthlyWeather = async (city, monthOffset = 0) => {
-  if (!VC_API_KEY) {
-    console.error("VC_API_KEY is missing!");
-    throw new Error("API key cho Visual Crossing không tồn tại.");
-  }
+// export const fetchMonthlyWeather = async (city, monthOffset = 0) => {
+//   if (!VC_API_KEY) {
+//     console.error("VC_API_KEY is missing!");
+//     throw new Error("API key cho Visual Crossing không tồn tại.");
+//   }
 
+//   const today = new Date();
+//   today.setMonth(today.getMonth() + monthOffset);
+
+//   const year = today.getFullYear();
+//   const month = (today.getMonth() + 1).toString().padStart(2, "0");
+//   const startDate = `${year}-${month}-01`;
+//   const endDate = `${year}-${month}-31`;
+
+//   const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(
+//     city
+//   )}/${startDate}/${endDate}`;
+
+//   try {
+//     const response = await axios.get(url, {
+//       params: {
+//         unitGroup: "metric",
+//         key: VC_API_KEY,
+//         contentType: "json",
+//         lang: "vi",
+//       },
+//     });
+
+//     return {
+//       days: response.data.days,
+//       month: month,
+//       year: year,
+//     };
+//   } catch (error) {
+//     console.error("Lỗi khi fetch thời tiết hàng tháng:", error);
+//     throw new Error("Không thể tải dữ liệu thời tiết tháng.");
+//   }
+// };
+const weatherTypeMap = {
+  type_21: "Nhiều mây",
+  type_42: "Mưa",
+  type_41: "Mây dày",
+  type_43: "Trời quang",
+};
+
+export const fetchMonthlyWeather = async (city, monthOffset = 0) => {
   const today = new Date();
   today.setMonth(today.getMonth() + monthOffset);
 
   const year = today.getFullYear();
   const month = (today.getMonth() + 1).toString().padStart(2, "0");
-  const startDate = `${year}-${month}-01`;
-  const endDate = `${year}-${month}-31`;
 
-  const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(
-    city
-  )}/${startDate}/${endDate}`;
+  let url = "";
 
-  try {
-    const response = await axios.get(url, {
-      params: {
-        unitGroup: "metric",
-        key: VC_API_KEY,
-        contentType: "json",
-        lang: "vi",
-      },
-    });
-
-    return {
-      days: response.data.days,
-      month: month,
-      year: year,
-    };
-  } catch (error) {
-    console.error("Lỗi khi fetch thời tiết hàng tháng:", error);
-    throw new Error("Không thể tải dữ liệu thời tiết tháng.");
+  if (month === "07") {
+    url = "/mock/weather_july.json";
+  } else if (month === "08") {
+    url = "/mock/weather_august.json";
+  } else {
+    throw new Error(`Không có dữ liệu thời tiết mẫu cho tháng ${month}`);
   }
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  const mappedDays = data.days.map((day) => ({
+    ...day,
+    conditions: day.conditions
+      .split(", ")
+      .map((type) => weatherTypeMap[type] || type)
+      .join(", "),
+  }));
+
+  return {
+    days: mappedDays,
+    month,
+    year,
+  };
 };

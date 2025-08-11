@@ -1,17 +1,7 @@
 import stylesHome from "./Home.styles";
 import React, { useEffect, useState, useRef, useContext } from "react";
-import {
-  Input,
-  Spin,
-  Typography,
-  Card,
-  Button,
-  Radio,
-} from "antd";
-import {
-  LeftOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
+import { Input, Spin, Typography, Card, Button, Radio } from "antd";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import WeatherCard from "../components/WeatherCard";
 import HourlyForecastCard from "../components/HourlyForecastCard";
 import { ThemeContext } from "../contexts/ThemeContext";
@@ -113,18 +103,27 @@ const Home = () => {
     checkHourlyOverflow();
   }, [selectedDate, groupedByDay]);
 
-  useEffect(() => {
-    const loadMonthlyWeather = async () => {
-      try {
-        const data = await fetchMonthlyWeather(city, monthOffset);
-        setMonthlyWeather(data.days);
-        setMonthLabel(`${data.month}/${data.year}`);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    loadMonthlyWeather();
-  }, [monthOffset, city]);
+  const loadMonthlyWeather = async (city, monthOffset) => {
+    try {
+      const data = await fetchMonthlyWeather(city, monthOffset);
+      setMonthlyWeather(data.days);
+      setMonthLabel(`${data.month}/${data.year}`);
+    } catch (err) {
+      console.error("Lỗi khi fetch monthly weather:", err);
+    }
+  };
+
+  const handleLoadNextMonthWeather = async () => {
+    const newMonthOffset = monthOffset + 1;
+    setMonthOffset(newMonthOffset);
+    await loadMonthlyWeather(city, newMonthOffset);
+  };
+
+  const handleLoadPrevMonthWeather = async () => {
+    const newMonthOffset = monthOffset - 1;
+    setMonthOffset(newMonthOffset);
+    await loadMonthlyWeather(city, newMonthOffset);
+  };
 
   return (
     <div style={styles.container}>
@@ -256,14 +255,14 @@ const Home = () => {
           <div style={styles.monthlyNav}>
             <button
               style={styles.navButton}
-              onClick={() => setMonthOffset((prev) => prev - 1)}
+              onClick={() => handleLoadPrevMonthWeather()}
             >
               Tháng trước
             </button>
             <h2 style={styles.monthTitle}>Tháng {monthLabel}</h2>
             <button
               style={styles.navButton}
-              onClick={() => setMonthOffset((prev) => prev + 1)}
+              onClick={() => handleLoadNextMonthWeather()}
             >
               Tháng sau
             </button>

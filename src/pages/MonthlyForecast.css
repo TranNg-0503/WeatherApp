@@ -1,0 +1,32 @@
+.monthly-container {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  gap: 8px;
+}
+
+.monthly-weather-header {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 8px;
+}
+
+.monthly-day-placeholder {
+  background: #f2f2f2;
+  border-radius: 8px;
+}
+
+.monthly-card-title {
+  text-align: start;
+  margin-bottom: 8px;
+}
+
+.monthly-card-temp {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.monthly-card-weather-condition {
+  font-size: 12px;
+  font-weight: bold;
+}
