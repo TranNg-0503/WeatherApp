@@ -8,7 +8,7 @@ import {
 
 const { Text, Title } = Typography;
 
-const HourlyForecastCard = ({ data, expandedAll }) => {
+const HourlyForecastCard = ({ data, expandedAll,tempUnit ="C" }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const HourlyForecastCard = ({ data, expandedAll }) => {
       textAlign: "center",
     }}
   >
-    {Math.round(main.temp)}°C
+    {Math.round(main.temp)}°{tempUnit}
   </Title>
 </div>
 
