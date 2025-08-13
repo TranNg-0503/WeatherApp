@@ -1,12 +1,10 @@
 import stylesHome from "./Home.styles";
 import React, { useEffect, useState, useRef, useContext } from "react";
-import { Input, Spin, Typography, Card, Button, Radio } from "antd";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { Input, Spin, Typography, Card, Button, Radio, Switch } from "antd";
+import { ThemeContext } from "../contexts/ThemeContext";
 import WeatherCard from "../components/WeatherCard";
 import HourlyForecastCard from "../components/HourlyForecastCard";
-import { ThemeContext } from "../contexts/ThemeContext";
 import DaySelector from "../components/DaySelector";
-
 import {
   fetchCurrentWeather,
   fetchHourlyForecast,
@@ -32,9 +30,17 @@ const Home = () => {
   const [monthlyWeather, setMonthlyWeather] = useState([]);
   const [monthLabel, setMonthLabel] = useState("");
 
+  const [tempUnit, setTempUnit] = useState("C"); // "C" hoặc "F"
   const dateScrollRef = useRef(null);
   const hourlyScrollRef = useRef(null);
   const [showHourlyScrollButtons, setShowHourlyScrollButtons] = useState(false);
+
+  // Chuyển tempUnit thành unit của API
+  const getApiUnit = (unit) => (unit === "C" ? "metric" : "imperial");
+
+  const toggleTempUnit = () => {
+    setTempUnit((prev) => (prev === "C" ? "F" : "C"));
+  };
 
   const scrollX = (ref, direction) => {
     if (ref.current) {
@@ -49,11 +55,12 @@ const Home = () => {
     }
   };
 
-  const loadWeather = async (cityName) => {
+  const loadWeather = async (cityName, unit = tempUnit) => {
     setLoading(true);
     try {
-      const current = await fetchCurrentWeather(cityName);
-      const hourly = await fetchHourlyForecast(cityName);
+      const apiUnit = getApiUnit(unit);
+      const current = await fetchCurrentWeather(cityName, apiUnit);
+      const hourly = await fetchHourlyForecast(cityName, apiUnit);
 
       setWeatherData(current);
       setHourlyForecast(hourly);
@@ -73,6 +80,32 @@ const Home = () => {
     setLoading(false);
   };
 
+  const loadMonthlyWeather = async (city, offset) => {
+    try {
+      const apiUnit = getApiUnit(tempUnit);
+      const data = await fetchMonthlyWeather(city, offset, apiUnit);
+      setMonthlyWeather(data.days);
+      setMonthLabel(`${data.month}/${data.year}`);
+    } catch (err) {
+      console.error("Lỗi khi fetch monthly weather:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadWeather(city, tempUnit);
+    loadMonthlyWeather(city, monthOffset);
+  }, []);
+
+  // Khi đổi đơn vị → gọi lại API
+  useEffect(() => {
+    loadWeather(city, tempUnit);
+    loadMonthlyWeather(city, monthOffset);
+  }, [tempUnit]);
+
+  useEffect(() => {
+    checkHourlyOverflow();
+  }, [selectedDate, groupedByDay]);
+
   const getIconFromDate = (dateStr) => {
     const entries = groupedByDay[dateStr];
     return entries?.[Math.floor(entries.length / 2)]?.weather[0]?.icon;
@@ -81,36 +114,9 @@ const Home = () => {
   const getTempRange = (entries) => {
     if (!entries?.length) return "";
     const temps = entries.map((e) => e.main.temp);
-    return `${Math.round(Math.max(...temps))}° / ${Math.round(
+    return `${Math.round(Math.max(...temps))}°${tempUnit} / ${Math.round(
       Math.min(...temps)
-    )}°`;
-  };
-
-  const formatDateLabel = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "short",
-      day: "numeric",
-      month: "numeric",
-    });
-  };
-
-  useEffect(() => {
-    loadWeather(city);
-  }, []);
-
-  useEffect(() => {
-    checkHourlyOverflow();
-  }, [selectedDate, groupedByDay]);
-
-  const loadMonthlyWeather = async (city, monthOffset) => {
-    try {
-      const data = await fetchMonthlyWeather(city, monthOffset);
-      setMonthlyWeather(data.days);
-      setMonthLabel(`${data.month}/${data.year}`);
-    } catch (err) {
-      console.error("Lỗi khi fetch monthly weather:", err);
-    }
+    )}°${tempUnit}`;
   };
 
   const handleLoadNextMonthWeather = async () => {
@@ -127,25 +133,39 @@ const Home = () => {
 
   return (
     <div style={styles.container}>
+      {/* Thanh tìm kiếm */}
       <Input.Search
         placeholder="Tìm kiếm vị trí"
         onSearch={(value) => {
           if (!value) return;
           setCity(value);
-          loadWeather(value);
+          loadWeather(value, tempUnit);
+          loadMonthlyWeather(value, monthOffset);
         }}
         enterButton
         style={styles.searchInput}
       />
 
+      {/* Nút toggle đơn vị */}
+      <div style={{ position: "absolute", top: 120, right: 30 }}>
+        <Switch
+          checkedChildren="°F"
+          unCheckedChildren="°C"
+          checked={tempUnit === "F"}
+          onChange={toggleTempUnit}
+        />
+      </div>
+
       {loading ? (
         <Spin />
       ) : (
         <>
+          {/* Thời tiết hiện tại */}
           <div style={styles.currentWeather}>
-            <WeatherCard weatherData={weatherData} />
+            <WeatherCard weatherData={weatherData} tempUnit={tempUnit} />
           </div>
 
+          {/* Dự báo từng ngày */}
           <Card style={styles.forecastCard} styles={{ body: styles.cardBody }}>
             <Title level={4} style={styles.cardTitle}>
               Dự báo từng ngày (chọn ngày để xem chi tiết theo giờ)
@@ -161,7 +181,6 @@ const Home = () => {
               <Radio.Button value="wind">Gió</Radio.Button>
             </Radio.Group>
 
-            {/* ✅ Đã thay thế bằng DaySelector */}
             <DaySelector
               groupedByDay={groupedByDay}
               selectedDate={selectedDate}
@@ -206,20 +225,7 @@ const Home = () => {
                     {expandedAll ? "Thu gọn tất cả" : "Xem tất cả"}
                   </Button>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    width: "100%",
-                  }}
-                >
-                  {showHourlyScrollButtons && (
-                    <Button
-                      icon={<LeftOutlined />}
-                      onClick={() => scrollX(hourlyScrollRef, -1)}
-                    />
-                  )}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     ref={hourlyScrollRef}
                     style={{
@@ -236,34 +242,23 @@ const Home = () => {
                           data={hour}
                           expandedAll={expandedAll}
                           viewType={viewType}
+                          tempUnit={tempUnit}
                         />
                       </div>
                     ))}
                   </div>
-                  {showHourlyScrollButtons && (
-                    <Button
-                      icon={<RightOutlined />}
-                      onClick={() => scrollX(hourlyScrollRef, 1)}
-                    />
-                  )}
                 </div>
               </Card>
             )}
           </Card>
 
-          {/* Monthly Forecast */}
+          {/* Dự báo tháng */}
           <div style={styles.monthlyNav}>
-            <button
-              style={styles.navButton}
-              onClick={() => handleLoadPrevMonthWeather()}
-            >
+            <button style={styles.navButton} onClick={handleLoadPrevMonthWeather}>
               Tháng trước
             </button>
             <h2 style={styles.monthTitle}>Tháng {monthLabel}</h2>
-            <button
-              style={styles.navButton}
-              onClick={() => handleLoadNextMonthWeather()}
-            >
+            <button style={styles.navButton} onClick={handleLoadNextMonthWeather}>
               Tháng sau
             </button>
           </div>
@@ -273,7 +268,8 @@ const Home = () => {
               <Card key={idx} style={styles.monthlyCard}>
                 <div>{day.datetime}</div>
                 <div>
-                  🌡️ {day.tempmax}° / {day.tempmin}°
+                  🌡️ {Math.round(day.tempmax)}°{tempUnit} /{" "}
+                  {Math.round(day.tempmin)}°{tempUnit}
                 </div>
                 <div>☁️ {day.conditions}</div>
               </Card>

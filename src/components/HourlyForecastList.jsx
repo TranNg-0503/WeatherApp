@@ -16,6 +16,7 @@ const HourlyForecastList = ({
   expandedAll,
   setExpandedAll,
   showHourlyScrollButtons,
+  
 }) => {
   return (
     <Card

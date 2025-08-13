@@ -8,7 +8,7 @@ import {
   ArrowUpOutlined,
 } from "@ant-design/icons";
 
-const WeatherCard = ({ weatherData }) => {
+const WeatherCard = ({ weatherData, tempUnit = "C" }) => {
   if (!weatherData) return null;
 
   const { name, main, weather, wind, visibility } = weatherData;
@@ -25,14 +25,14 @@ const WeatherCard = ({ weatherData }) => {
         <Col span={6}>
           <img src={iconUrl} alt="weather icon" />
           <div style={{ fontSize: "36px", fontWeight: "bold" }}>
-            {Math.round(main.temp)}°C
+            {Math.round(main.temp)}°{tempUnit}
           </div>
         </Col>
 
         <Col span={18}>
           <div style={{ fontSize: "18px" }}>{weather[0].description}</div>
           <div style={{ color: "#ccc" }}>
-            Cảm thấy như: {Math.round(main.feels_like)}°
+            Cảm thấy như: {Math.round(main.feels_like)}°{tempUnit}
           </div>
           <div style={{ marginTop: 12 }}>
             <p>
@@ -40,7 +40,7 @@ const WeatherCard = ({ weatherData }) => {
                 weather[0].description
               }. Nhiệt độ cao nhất hôm nay khoảng ${Math.round(
                 main.temp_max
-              )}°C.`}
+              )}°${tempUnit}.`}
             </p>
           </div>
 
@@ -59,7 +59,7 @@ const WeatherCard = ({ weatherData }) => {
             </Col>
             <Col span={8}>
               <ArrowUpOutlined /> Điểm sương:{" "}
-              {(main.temp - (100 - main.humidity) / 5).toFixed(1)}°
+              {(main.temp - (100 - main.humidity) / 5).toFixed(1)}°{tempUnit}
             </Col>
           </Row>
         </Col>
