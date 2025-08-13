@@ -12,7 +12,7 @@
 }
 
 .monthly-day-placeholder {
-  background: #f2f2f2;
+  background: #ffffff;
   border-radius: 8px;
 }
 
@@ -23,10 +23,10 @@
 
 .monthly-card-temp {
   margin-bottom: 8px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .monthly-card-weather-condition {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: bold;
 }

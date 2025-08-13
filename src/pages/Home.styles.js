@@ -6,8 +6,11 @@ const stylesHome = (darkMode) => ({
     backgroundColor: darkMode ? "#1f1f1f" : "#f5f5f5",
   },
   searchInput: {
-    maxWidth: 300,
+    width: "50%",
     marginBottom: 24,
+    margin: "0 auto 24px",
+    fontSize: 24,
+    padding: "20px 20px",
   },
   currentWeather: {
     marginBottom: 32,

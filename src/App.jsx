@@ -23,7 +23,7 @@ const ThemedApp = () => {
     >
       <BrowserRouter>
         <Navbar />
-        <div style={{ minHeight: "80vh", padding: "24px" }}>
+        <div style={{ minHeight: "80vh" }}>
           <Routing />
         </div>
         <Footer />
