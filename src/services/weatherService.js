@@ -1,7 +1,55 @@
 import axios from "axios";
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
-const VC_API_KEY = import.meta.env.VITE_VISUALCROSSING_API_KEY;
+const NEWSAPI_KEY = import.meta.env.VITE_NEWSAPI_KEY; // NewsAPI key
+
+/**
+ * Lấy tin tức thời tiết từ NewsAPI
+ */
+export const fetchWeatherNews = async () => {
+  if (!NEWSAPI_KEY) {
+    console.error("NEWSAPI_KEY is missing!");
+    throw new Error("API key cho NewsAPI không tồn tại.");
+  }
+
+  try {
+    const response = await axios.get("https://newsapi.org/v2/everything", {
+      params: {
+        q: "thời tiết",
+        language: "vi",
+        sortBy: "publishedAt",
+        pageSize: 12, // số tin muốn lấy
+        apiKey: NEWSAPI_KEY,
+      },
+    });
+
+    // Chuyển đổi dữ liệu từ NewsAPI sang format cũ để News.jsx vẫn dùng được
+    return (response.data.articles || []).map((article) => ({
+      title: article.title,
+      description: article.description,
+      image: article.urlToImage,
+      link: article.url,
+      source: article.source?.name || "Nguồn tin",
+      publishedAt: article.publishedAt,
+    }));
+  } catch (error) {
+    if (error.response) {
+      console.error(
+        `Lỗi khi lấy tin tức từ NewsAPI: ${error.response.status} - ${error.response.statusText}`
+      );
+
+      if (error.response.status === 401) {
+        throw new Error("API key NewsAPI không hợp lệ hoặc đã hết hạn.");
+      }
+      if (error.response.status === 429) {
+        throw new Error("Bạn đã vượt quá giới hạn gọi NewsAPI, vui lòng thử lại sau.");
+      }
+    } else {
+      console.error("Lỗi khi kết nối NewsAPI:", error.message);
+    }
+    throw new Error("Không thể tải tin tức thời tiết.");
+  }
+};
 
 // Lấy thời tiết hiện tại
 export const fetchCurrentWeather = async (city, unit = "metric") => {
@@ -17,7 +65,7 @@ export const fetchCurrentWeather = async (city, unit = "metric") => {
       params: {
         q: city,
         appid: API_KEY,
-        units: unit, // metric hoặc imperial
+        units: unit,
         lang: "vi",
       },
     });
@@ -30,7 +78,7 @@ export const fetchCurrentWeather = async (city, unit = "metric") => {
   }
 };
 
-// Lấy dự báo theo giờ
+// Lấy dự báo hàng giờ
 export const fetchHourlyForecast = async (city, unit = "metric") => {
   if (!API_KEY) {
     console.error("API_KEY is missing!");
@@ -44,7 +92,7 @@ export const fetchHourlyForecast = async (city, unit = "metric") => {
       params: {
         q: city,
         appid: API_KEY,
-        units: unit, // metric hoặc imperial
+        units: unit,
         lang: "vi",
       },
     });
@@ -60,7 +108,6 @@ export const fetchHourlyForecast = async (city, unit = "metric") => {
   }
 };
 
-// Mock dữ liệu tháng
 const weatherTypeMap = {
   type_21: "Nhiều mây",
   type_42: "Mưa",
@@ -68,7 +115,12 @@ const weatherTypeMap = {
   type_43: "Trời quang",
 };
 
-export const fetchMonthlyWeather = async (city, monthOffset = 0, unit = "metric") => {
+// Lấy dữ liệu thời tiết theo tháng (mock data cho tháng 7 và 8)
+export const fetchMonthlyWeather = async (
+  city,
+  monthOffset = 0,
+  unit = "metric"
+) => {
   const today = new Date();
   today.setMonth(today.getMonth() + monthOffset);
 
@@ -103,6 +155,7 @@ export const fetchMonthlyWeather = async (city, monthOffset = 0, unit = "metric"
     year,
   };
 };
+
 
 
 

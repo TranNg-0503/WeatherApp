@@ -24,19 +24,20 @@ const HourlyForecastCard = ({ data, expandedAll, tempUnit = "C" }) => {
 
   const { dt, main, weather, wind, clouds } = data;
 
-  // ✅ Sửa lỗi lệch ngày bằng timezone Asia/Ho_Chi_Minh
-  const dateObj = new Date(dt * 1000);
+  // ✅ Chuyển từ UTC sang giờ VN (Asia/Ho_Chi_Minh, GMT+7)
+  const vnTimestamp = (dt + 7 * 3600) * 1000;
+  const dateObj = new Date(vnTimestamp);
+
   const timeString = dateObj.toLocaleTimeString("vi-VN", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
-    timeZone: "Asia/Ho_Chi_Minh",
   });
+
   const dateString = dateObj.toLocaleDateString("vi-VN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-    timeZone: "Asia/Ho_Chi_Minh",
   });
 
   return (
@@ -108,7 +109,9 @@ const HourlyForecastCard = ({ data, expandedAll, tempUnit = "C" }) => {
             <ClockCircleOutlined /> {dateString}
           </div>
           <div>💧 Độ ẩm: {main.humidity}%</div>
-          <div>🌬️ Gió: {wind.speed} m/s ({wind.deg}°)</div>
+          <div>
+            🌬️ Gió: {wind.speed} m/s ({wind.deg}°)
+          </div>
           <div>☁️ Mây: {clouds.all}%</div>
           <div>⏲️ Áp suất: {main.pressure} hPa</div>
         </div>

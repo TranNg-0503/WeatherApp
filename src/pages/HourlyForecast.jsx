@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Spin, Button, Typography, Card } from "antd";
+import { Spin, Button, Typography, Card, Select } from "antd";
 import { fetchHourlyForecast } from "../services/weatherService";
 import DaySelectorHourly from "../components/DaySelectorHourly";
 import HourlyChart from "../components/HourlyChart";
@@ -7,6 +7,7 @@ import ForecastRowHourly from "../components/ForecastRowHourly";
 import styles from "../css/HourlyPage.style";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const HourlyForecast = () => {
   const [groupedByDay, setGroupedByDay] = useState({});
@@ -15,6 +16,7 @@ const HourlyForecast = () => {
   const [expandedAll, setExpandedAll] = useState(false);
   const [unit, setUnit] = useState("metric");
   const [loading, setLoading] = useState(false);
+  const [chartType, setChartType] = useState("temp"); // mặc định hiển thị nhiệt độ
 
   useEffect(() => {
     loadWeather();
@@ -74,9 +76,21 @@ const HourlyForecast = () => {
       <div style={styles.container}>
         <div style={styles.header}>
           <Title level={3}>Dự báo thời tiết theo giờ</Title>
-          <Button onClick={handleUnitToggle}>
-            Đổi sang °{unit === "metric" ? "F" : "C"}
-          </Button>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <Button onClick={handleUnitToggle}>
+              Đổi sang °{unit === "metric" ? "F" : "C"}
+            </Button>
+            <Select
+              value={chartType}
+              onChange={setChartType}
+              style={{ width: 160 }}
+            >
+              <Option value="temp">Nhiệt độ</Option>
+              <Option value="humidity">Độ ẩm</Option>
+              <Option value="rain">Lượng mưa</Option>
+              <Option value="wind">Tốc độ gió</Option>
+            </Select>
+          </div>
         </div>
 
         <DaySelectorHourly
@@ -91,9 +105,22 @@ const HourlyForecast = () => {
               groupedByDay[selectedDate]?.map((item) => ({
                 time: item.dt_txt.split(" ")[1].slice(0, 5),
                 temp: item.main.temp,
+                humidity: item.main.humidity,
+                rain: item.rain?.["3h"] || 0,
+                wind: item.wind.speed,
               })) || []
             }
             unit={unit}
+            dataKey={chartType}
+            label={
+              chartType === "temp"
+                ? "Nhiệt độ"
+                : chartType === "humidity"
+                ? "Độ ẩm"
+                : chartType === "rain"
+                ? "Lượng mưa"
+                : "Tốc độ gió"
+            }
           />
         </Card>
 
