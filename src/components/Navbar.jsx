@@ -5,6 +5,7 @@ import { ThemeContext } from "../contexts/ThemeContext";
 
 const Navbar = () => {
   const { darkMode, toggleTheme } = useContext(ThemeContext);
+
   const menuItems = [
     {
       key: "home",
@@ -42,6 +43,7 @@ const Navbar = () => {
         alignItems: "center",
         backgroundColor: darkMode ? "#1f1f1f" : "#ffffff",
         borderBottom: darkMode ? "1px solid #333" : "1px solid #ddd",
+        overflow: "auto",
       }}
     >
       <Menu
@@ -64,7 +66,6 @@ const Navbar = () => {
         onChange={toggleTheme}
         checkedChildren="🌙"
         unCheckedChildren="🌞"
-        style={{ transform: "scale(1.3)" }}
       />
     </div>
   );

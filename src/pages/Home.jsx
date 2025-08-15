@@ -177,152 +177,155 @@ const Home = () => {
 
   return (
     <div style={styles.container}>
-      {/* Thanh tìm kiếm */}
-      <Input.Search
-        placeholder="Tìm kiếm vị trí"
-        onSearch={(value) => {
-          if (!value) return;
-          setCity(value);
-          loadWeather(value, tempUnit);
-          loadMonthlyWeather(value, monthOffset);
-        }}
-        enterButton
-        style={styles.searchInput}
-      />
+      <div style={styles.content}>
+        <div style={styles.searchContainer}>
+          {/* Thanh tìm kiếm */}
+          <Input.Search
+            placeholder="Tìm kiếm vị trí"
+            onSearch={(value) => {
+              if (!value) return;
+              setCity(value);
+              loadWeather(value, tempUnit);
+              loadMonthlyWeather(value, monthOffset);
+            }}
+            enterButton
+            size="large"
+            style={styles.searchInput}
+          />
 
-      {/* Nút toggle đơn vị */}
-      <div style={{ position: "absolute", top: 120, right: 30 }}>
-        <Switch
-          checkedChildren="°F"
-          unCheckedChildren="°C"
-          checked={tempUnit === "F"}
-          onChange={toggleTempUnit}
-        />
-      </div>
+          {/* Nút toggle đơn vị */}
+          <Switch
+            checkedChildren="°F"
+            unCheckedChildren="°C"
+            checked={tempUnit === "F"}
+            onChange={toggleTempUnit}
+          />
+        </div>
 
-      {loading ? (
-        <Spin />
-      ) : (
-        <>
-          {/* Thời tiết hiện tại */}
-          <div style={styles.currentWeather}>
-            <WeatherCard weatherData={weatherData} tempUnit={tempUnit} />
-          </div>
+        {loading ? (
+          <Spin />
+        ) : (
+          <>
+            {/* Thời tiết hiện tại */}
+            <div style={styles.currentWeather}>
+              <WeatherCard weatherData={weatherData} tempUnit={tempUnit} />
+            </div>
 
-          {/* Dự báo từng ngày */}
-          <Card style={styles.forecastCard} styles={{ body: styles.cardBody }}>
-            <Title level={4} style={styles.cardTitle}>
-              Dự báo từng ngày (chọn ngày để xem chi tiết theo giờ)
-            </Title>
+            {/* Dự báo từng ngày */}
+            <Card style={styles.forecastCard} styles={{ body: styles.cardBody }}>
+              <Title level={4} style={styles.cardTitle}>
+                Dự báo từng ngày (chọn ngày để xem chi tiết theo giờ)
+              </Title>
 
-            <Radio.Group
-              value={viewType}
-              onChange={(e) => setViewType(e.target.value)}
-              style={{ marginBottom: 16 }}
-            >
-              <Radio.Button value="rain">Lượng mưa</Radio.Button>
-              <Radio.Button value="temp">Nhiệt độ</Radio.Button>
-              <Radio.Button value="wind">Gió</Radio.Button>
-            </Radio.Group>
-
-            <DaySelector
-              groupedByDay={groupedByDay}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              getIconFromDate={getIconFromDate}
-              getTempRange={getTempRange}
-              dateScrollRef={dateScrollRef}
-              scrollX={scrollX}
-              viewType={viewType}
-            />
-
-            {selectedDate && (
-              <Card
-                style={{
-                  background: "#2a2f4a",
-                  color: "#fff",
-                  marginTop: 16,
-                  borderRadius: 12,
-                  width: "100%",
-                }}
-                bodyStyle={{
-                  padding: 12,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                }}
+              <Radio.Group
+                value={viewType}
+                onChange={(e) => setViewType(e.target.value)}
+                style={{ marginBottom: 16 }}
               >
-                <div
+                <Radio.Button value="rain">Lượng mưa</Radio.Button>
+                <Radio.Button value="temp">Nhiệt độ</Radio.Button>
+                <Radio.Button value="wind">Gió</Radio.Button>
+              </Radio.Group>
+
+              <DaySelector
+                groupedByDay={groupedByDay}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                getIconFromDate={getIconFromDate}
+                getTempRange={getTempRange}
+                dateScrollRef={dateScrollRef}
+                scrollX={scrollX}
+                viewType={viewType}
+              />
+
+              {selectedDate && (
+                <Card
                   style={{
+                    background: "#2a2f4a",
+                    color: "#fff",
+                    marginTop: 16,
+                    borderRadius: 12,
+                    width: "100%",
+                  }}
+                  bodyStyle={{
+                    padding: 12,
                     display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
+                    flexDirection: "column",
+                    gap: 8,
                   }}
                 >
-                  <div style={{ fontWeight: 500, fontSize: 14 }}>
-                    Dự báo theo giờ
-                  </div>
-                  <Button
-                    size="small"
-                    onClick={() => setExpandedAll((prev) => !prev)}
-                  >
-                    {expandedAll ? "Thu gọn tất cả" : "Xem tất cả"}
-                  </Button>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
-                    ref={hourlyScrollRef}
                     style={{
                       display: "flex",
-                      gap: 12,
-                      overflowX: "auto",
-                      flex: 1,
-                      padding: "0 8px",
+                      justifyContent: "space-between",
+                      alignItems: "center",
                     }}
                   >
-                    {/* Vì đã group đúng theo timezone, chỉ cần map thẳng */}
-                    {groupedByDay[selectedDate]?.map((hour, idx) => (
-                      <div key={idx} style={{ minWidth: 160 }}>
-                        <HourlyForecastCard
-                          data={hour}
-                          expandedAll={expandedAll}
-                          viewType={viewType}
-                          tempUnit={tempUnit}
-                        />
-                      </div>
-                    ))}
+                    <div style={{ fontWeight: 500, fontSize: 14 }}>
+                      Dự báo theo giờ
+                    </div>
+                    <Button
+                      size="small"
+                      onClick={() => setExpandedAll((prev) => !prev)}
+                    >
+                      {expandedAll ? "Thu gọn tất cả" : "Xem tất cả"}
+                    </Button>
                   </div>
-                </div>
-              </Card>
-            )}
-          </Card>
 
-          {/* Dự báo tháng */}
-          <div style={styles.monthlyNav}>
-            <button style={styles.navButton} onClick={handleLoadPrevMonthWeather}>
-              Tháng trước
-            </button>
-            <h2 style={styles.monthTitle}>Tháng {monthLabel}</h2>
-            <button style={styles.navButton} onClick={handleLoadNextMonthWeather}>
-              Tháng sau
-            </button>
-          </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div
+                      ref={hourlyScrollRef}
+                      style={{
+                        display: "flex",
+                        gap: 12,
+                        overflowX: "auto",
+                        flex: 1,
+                        padding: "0 8px",
+                      }}
+                    >
+                      {/* Vì đã group đúng theo timezone, chỉ cần map thẳng */}
+                      {groupedByDay[selectedDate]?.map((hour, idx) => (
+                        <div key={idx} style={{ minWidth: 160 }}>
+                          <HourlyForecastCard
+                            data={hour}
+                            expandedAll={expandedAll}
+                            viewType={viewType}
+                            tempUnit={tempUnit}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </Card>
 
-          <div style={styles.monthlyGrid}>
-            {monthlyWeather.map((day, idx) => (
-              <Card key={idx} style={styles.monthlyCard}>
-                <div>{day.datetime}</div>
-                <div>
-                  🌡️ {Math.round(day.tempmax)}°{tempUnit} /{" "}
-                  {Math.round(day.tempmin)}°{tempUnit}
-                </div>
-                <div>☁️ {day.conditions}</div>
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
+            {/* Dự báo tháng */}
+            <div style={styles.monthlyNav}>
+              <Button onClick={handleLoadPrevMonthWeather}>
+                Tháng trước
+              </Button>
+              <h2 style={styles.monthTitle}>Tháng {monthLabel}</h2>
+              <Button  onClick={handleLoadNextMonthWeather}>
+                Tháng sau
+              </Button>
+            </div>
+
+            <div style={styles.monthlyGrid}>
+              {monthlyWeather.map((day, idx) => (
+                <Card key={idx} style={styles.monthlyCard}>
+                  <div>{day.datetime}</div>
+                  <div>
+                    🌡️ {Math.round(day.tempmax)}°{tempUnit} /{" "}
+                    {Math.round(day.tempmin)}°{tempUnit}
+                  </div>
+                  <div>☁️ {day.conditions}</div>
+                </Card>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

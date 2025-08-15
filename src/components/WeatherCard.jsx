@@ -17,9 +17,12 @@ const WeatherCard = ({ weatherData, tempUnit = "C" }) => {
 
   return (
     <Card
-      title={`Thời tiết tại ${name}`}
+      title={
+        <h2 style={{ color: "#fff", fontSize: 28, fontWeight: "bold", margin: "24px 0 0 0" }}>
+          {`Thời tiết tại ${name}`}
+        </h2>
+      }
       style={{ background: "#3a3a80", color: "#fff", borderRadius: 12 }}
-      headStyle={{ color: "#fff", fontWeight: "bold" }}
     >
       <Row align="middle">
         <Col span={6}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { ConfigProvider, theme as antdTheme } from "antd";
 import Navbar from "./components/Navbar";
@@ -23,9 +23,7 @@ const ThemedApp = () => {
     >
       <BrowserRouter>
         <Navbar />
-        <div style={{ minHeight: "80vh" }}>
-          <Routing />
-        </div>
+        <Routing />
         <Footer />
       </BrowserRouter>
     </ConfigProvider>

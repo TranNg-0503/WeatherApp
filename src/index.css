@@ -25,9 +25,6 @@ a:hover {
 body {
   margin: 0;
   padding: 0;
-  min-width: 100vw;
-  min-height: 100vh;
-  overflow-x: hidden;
 }
 
 h1 {
@@ -59,9 +56,11 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+  
   button {
     background-color: #f9f9f9;
   }
