@@ -1,31 +1,40 @@
 const stylesHome = (darkMode) => ({
   container: {
-    // padding: 24,
-    minHeight: "100vh",
+    position: "relative",
+    padding: 24,
     color: darkMode ? "#fff" : "#000",
     backgroundColor: darkMode ? "#1f1f1f" : "#f5f5f5",
   },
+  content: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+  },
+  searchContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 40,
+  },
   searchInput: {
     width: "50%",
-    marginBottom: 24,
-    margin: "0 auto 24px",
     fontSize: 24,
-    padding: "20px 20px",
   },
   currentWeather: {
-    marginBottom: 32,
+    marginBottom: 80,
   },
   forecastCard: {
     backgroundColor: "#1f243d",
     borderRadius: 16,
     marginTop: 0,
+    marginBottom: 80,
   },
   cardBody: {
     padding: 24,
   },
   cardTitle: {
+    fontSize: 28,
     color: "#fff",
-    marginBottom: 16,
+    margin: "0 0 16px 0",
   },
   dailyList: {
     display: "flex",
@@ -82,9 +91,9 @@ const stylesHome = (darkMode) => ({
   // Dự báo hàng tháng
   monthlyNav: {
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
-    margin: "40px 0 20px",
+    marginBottom: 40,
     gap: 16,
   },
   navButton: {
@@ -98,7 +107,7 @@ const stylesHome = (darkMode) => ({
     fontWeight: 500,
   },
   monthTitle: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "bold",
     margin: "0 12px",
     color: darkMode ? "#fff" : "#000",
