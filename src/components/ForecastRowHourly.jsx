@@ -9,6 +9,7 @@ const { Text } = Typography;
 const ForecastRow = ({ item, isOpen, onToggle, unit }) => {
   const formatTemp = (temp) =>
     `${Math.round(temp)}°${unit === "metric" ? "C" : "F"}`;
+
   const getWeatherIcon = (weather) => {
     const iconCode = weather[0]?.icon || "01d";
     return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
@@ -22,18 +23,42 @@ const ForecastRow = ({ item, isOpen, onToggle, unit }) => {
         style={{ padding: "10px 16px", cursor: "pointer" }}
         onClick={onToggle}
       >
-        <Col span={3}>
+        {/* Giờ */}
+        <Col span={4}>
           <Text strong>{item.dt_txt.split(" ")[1].slice(0, 5)}</Text>
         </Col>
-        <Col span={3}>
-          <img src={getWeatherIcon(item.weather)} alt="icon" />
+
+        {/* Icon thời tiết */}
+        <Col span={4} style={{ textAlign: "center" }}>
+          <img
+            src={getWeatherIcon(item.weather)}
+            alt={item.weather[0]?.description || "weather"}
+            style={{ width: 40, height: 40 }}
+          />
         </Col>
-        <Col span={4}>
+
+        {/* Nhiệt độ */}
+        <Col span={4} style={{ textAlign: "center" }}>
           <Text>{formatTemp(item.main.temp)}</Text>
         </Col>
-        <Col span={10}>{isOpen ? <UpOutlined /> : <DownOutlined />}</Col>
+
+        {/* Tóm tắt thời tiết */}
+        <Col span={8} style={{ textAlign: "center" }}>
+          <Text type="secondary" style={{ marginRight: 8 }}>
+            {item.weather[0]?.description
+              ? item.weather[0].description.charAt(0).toUpperCase() +
+                item.weather[0].description.slice(1)
+              : "—"}
+          </Text>
+        </Col>
+
+        {/* Toggle icon */}
+        <Col span={4} style={{ textAlign: "right" }}>
+          {isOpen ? <UpOutlined /> : <DownOutlined />}
+        </Col>
       </Row>
 
+      {/* Chi tiết khi mở rộng */}
       {isOpen && <ForecastDetailsHourly item={item} unit={unit} />}
     </Card>
   );

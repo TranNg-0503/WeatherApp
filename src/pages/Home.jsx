@@ -19,7 +19,7 @@ const Home = () => {
 
   const [city, setCity] = useState("Ho Chi Minh");
   const [weatherData, setWeatherData] = useState(null);
-  const [hourlyForecast, setHourlyForecast] = useState([]); // có thể không dùng ngoài debug
+  const [hourlyForecast, setHourlyForecast] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [groupedByDay, setGroupedByDay] = useState({});
@@ -57,16 +57,15 @@ const Home = () => {
 
   // === Helpers: tạo khóa ngày & kiểm tra thuộc ngày theo timezone offset (giây) ===
   const makeDateKey = (unixUtcSec, tzOffsetSec) => {
-    // cộng offset -> tạo Date tại "giờ địa phương thành phố", sau đó lấy UTC parts để tránh dính timezone máy
     const d = new Date((unixUtcSec + tzOffsetSec) * 1000);
     const y = d.getUTCFullYear();
     const m = String(d.getUTCMonth() + 1).padStart(2, "0");
     const day = String(d.getUTCDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`; // YYYY-MM-DD
+    return `${y}-${m}-${day}`;
   };
 
-  const isInDateKey = (unixUtcSec, tzOffsetSec, dateKey) =>
-    makeDateKey(unixUtcSec, tzOffsetSec) === dateKey;
+  // const isInDateKey = (unixUtcSec, tzOffsetSec, dateKey) =>
+  //   makeDateKey(unixUtcSec, tzOffsetSec) === dateKey;
 
   const loadWeather = async (cityName, unit = tempUnit) => {
     setLoading(true);
@@ -77,39 +76,31 @@ const Home = () => {
       const current = await fetchCurrentWeather(cityName, apiUnit);
       const forecastRes = await fetchHourlyForecast(cityName, apiUnit);
 
-      // Giữ lại để debug (không bắt buộc)
       setWeatherData(current);
 
-      // forecastRes có thể là mảng (list) hoặc object { list, city }
       const list = Array.isArray(forecastRes)
         ? forecastRes
         : forecastRes?.list || [];
       const apiTzOffset =
-        // Ưu tiên offset từ forecast.city, sau đó current.timezone; fallback +7h cho VN
-        (forecastRes?.city?.timezone ??
-          current?.timezone ??
-          7 * 3600); // giây
+        (forecastRes?.city?.timezone ?? current?.timezone ?? 7 * 3600);
 
       setHourlyForecast(list);
 
-      // Group theo ngày dựa trên timezone offset của city
+      // Group theo ngày
       const groups = {};
       for (const item of list) {
-        // OpenWeather 5-day/3h: item.dt là UTC seconds
         const key = makeDateKey(item.dt, apiTzOffset);
         if (!groups[key]) groups[key] = [];
         groups[key].push(item);
       }
 
-      // Sắp xếp các entry trong từng ngày theo thời gian tăng dần (an toàn)
       Object.keys(groups).forEach((k) =>
         groups[k].sort((a, b) => a.dt - b.dt)
       );
 
       setGroupedByDay(groups);
 
-      // Chọn ngày đầu tiên theo thứ tự tăng dần, hoặc hôm nay nếu có
-      const keys = Object.keys(groups).sort(); // YYYY-MM-DD nên sort string là đủ
+      const keys = Object.keys(groups).sort();
       const todayKeyFromCurrent = current?.dt
         ? makeDateKey(current.dt, apiTzOffset)
         : null;
@@ -281,7 +272,6 @@ const Home = () => {
                       padding: "0 8px",
                     }}
                   >
-                    {/* Vì đã group đúng theo timezone, chỉ cần map thẳng */}
                     {groupedByDay[selectedDate]?.map((hour, idx) => (
                       <div key={idx} style={{ minWidth: 160 }}>
                         <HourlyForecastCard

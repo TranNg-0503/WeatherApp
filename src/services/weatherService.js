@@ -3,9 +3,9 @@ import axios from "axios";
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
 const NEWSAPI_KEY = import.meta.env.VITE_NEWSAPI_KEY; // NewsAPI key
 
-/**
- * Lấy tin tức thời tiết từ NewsAPI
- */
+
+// Lấy tin tức thời tiết từ NewsAPI
+ 
 export const fetchWeatherNews = async () => {
   if (!NEWSAPI_KEY) {
     console.error("NEWSAPI_KEY is missing!");
@@ -116,6 +116,14 @@ const weatherTypeMap = {
 };
 
 // Lấy dữ liệu thời tiết theo tháng (mock data cho tháng 7 và 8)
+// Hàm chuyển đổi
+const convertTemp = (temp, unit) => {
+  if (unit === "imperial") {
+    return Math.round((temp * 9) / 5 + 32); // C -> F
+  }
+  return temp; // Giữ nguyên °C
+};
+
 export const fetchMonthlyWeather = async (
   city,
   monthOffset = 0,
@@ -142,6 +150,9 @@ export const fetchMonthlyWeather = async (
 
   const mappedDays = data.days.map((day) => ({
     ...day,
+    tempmax: convertTemp(day.tempmax, unit),
+    tempmin: convertTemp(day.tempmin, unit),
+    temp: convertTemp(day.temp, unit), // nếu có field trung bình
     conditions: day.conditions
       .split(", ")
       .map((type) => weatherTypeMap[type] || type)
@@ -155,6 +166,7 @@ export const fetchMonthlyWeather = async (
     year,
   };
 };
+
 
 
 

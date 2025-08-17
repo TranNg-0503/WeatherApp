@@ -64,6 +64,25 @@ const styles = {
       ? "0 1px 3px rgba(0,0,0,0.4)"
       : "0 2px 6px rgba(0,0,0,0.05)",
   }),
+
+  // 🌟 Thêm style cho box ForecastDetailsHourly
+  forecastDetailsBox: (darkMode) => ({
+    padding: "12px 16px",
+    borderRadius: "8px",
+    marginTop: "8px",
+    backgroundColor: darkMode ? "#2b2b2b" : "#ffffff",
+    boxShadow: darkMode
+      ? "0 1px 4px rgba(0,0,0,0.5)"
+      : "0 2px 8px rgba(0,0,0,0.1)",
+    border: darkMode ? "1px solid #444" : "1px solid #ddd",
+  }),
+
+  forecastDetailsCol: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "14px",
+  },
 };
 
 export default styles;

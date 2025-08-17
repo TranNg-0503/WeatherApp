@@ -83,10 +83,18 @@ const HourlyForecast = () => {
             Dự báo thời tiết theo giờ
           </Title>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <Button type="primary" onClick={handleUnitToggle} style={styles.button(darkMode)}>
+            <Button
+              type="primary"
+              onClick={handleUnitToggle}
+              style={styles.button(darkMode)}
+            >
               Đổi sang °{unit === "metric" ? "F" : "C"}
             </Button>
-            <Select value={chartType} onChange={setChartType} style={styles.select(darkMode)}>
+            <Select
+              value={chartType}
+              onChange={setChartType}
+              style={styles.select(darkMode)}
+            >
               <Option value="temp">Nhiệt độ</Option>
               <Option value="humidity">Độ ẩm</Option>
               <Option value="rain">Lượng mưa</Option>
@@ -130,23 +138,43 @@ const HourlyForecast = () => {
         </Card>
 
         {/* Nút xem tất cả */}
-        <Button onClick={toggleAllRows} style={styles.toggleAllButton(darkMode)}>
+        <Button
+          onClick={toggleAllRows}
+          style={styles.toggleAllButton(darkMode)}
+        >
           {expandedAll ? "Thu gọn tất cả" : "Xem chi tiết tất cả"}
         </Button>
 
-        {/* Các dòng dự báo */}
-        {groupedByDay[selectedDate]?.map((item, index) => (
-          <ForecastRowHourly
-            key={index}
-            item={item}
-            index={index}
-            isOpen={expandedRows[index] || false}
-            onToggle={() => toggleRow(index)}
-            unit={unit}
-            darkMode={darkMode}
-            style={styles.forecastRow(darkMode, index)}
-          />
-        ))}
+        {/* Box chứa các dòng dự báo */}
+        <Card
+          style={{
+            ...styles.chartCard(darkMode),
+            marginTop: "12px",
+            padding: "12px",
+          }}
+        >
+          {groupedByDay[selectedDate]?.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                marginBottom: "8px",
+                borderRadius: "8px",
+                padding: "8px",
+                background: darkMode ? "#1f1f1f" : "#fafafa",
+              }}
+            >
+              <ForecastRowHourly
+                item={item}
+                index={index}
+                isOpen={expandedRows[index] || false}
+                onToggle={() => toggleRow(index)}
+                unit={unit}
+                darkMode={darkMode}
+                style={styles.forecastRow(darkMode, index)}
+              />
+            </div>
+          ))}
+        </Card>
       </div>
     </Spin>
   );
