@@ -27,35 +27,35 @@ const getBackgroundGradient = (dataKey) => {
   }
 };
 
-// 🎨 Gradient line chart
+// 🎨 Gradient line chart (temp vàng neon + glow)
 const getLineGradient = (dataKey) => {
   switch (dataKey) {
     case "temp":
       return (
         <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#ff7300" stopOpacity={0.9} />
-          <stop offset="95%" stopColor="#ff0000" stopOpacity={0.3} />
+          <stop offset="0%" stopColor="#FFD700" stopOpacity={1} />
+          <stop offset="100%" stopColor="#FFD700" stopOpacity={1} />
         </linearGradient>
       );
     case "humidity":
       return (
         <linearGradient id="colorHumidity" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#007bff" stopOpacity={0.9} />
-          <stop offset="95%" stopColor="#66b2ff" stopOpacity={0.3} />
+          <stop offset="5%" stopColor="#00e5ff" stopOpacity={1} />
+          <stop offset="95%" stopColor="#007bff" stopOpacity={0.8} />
         </linearGradient>
       );
     case "rain":
       return (
         <linearGradient id="colorRain" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#00c853" stopOpacity={0.9} />
-          <stop offset="95%" stopColor="#b9f6ca" stopOpacity={0.3} />
+          <stop offset="5%" stopColor="#76ff03" stopOpacity={1} />
+          <stop offset="95%" stopColor="#00c853" stopOpacity={0.8} />
         </linearGradient>
       );
     case "wind":
       return (
         <linearGradient id="colorWind" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#6a1b9a" stopOpacity={0.9} />
-          <stop offset="95%" stopColor="#ba68c8" stopOpacity={0.3} />
+          <stop offset="5%" stopColor="#b388ff" stopOpacity={1} />
+          <stop offset="95%" stopColor="#7c4dff" stopOpacity={0.8} />
         </linearGradient>
       );
     default:
@@ -80,31 +80,72 @@ const RainDrop = ({ x, delay, duration }) => (
       left: `${x}%`,
       width: "2px",
       height: "15px",
-      background: "rgba(173,216,230,0.8)",
+      background: "rgba(173,216,230,0.9)",
       borderRadius: "1px",
     }}
   />
 );
 
-// 🌡 Mặt trời + tỏa sáng
-const SunEffect = () => (
+// 💦 Splash khi mưa chạm đáy
+const RainSplash = ({ x, delay }) => (
   <motion.div
-    animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-    transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+    initial={{ scale: 0, opacity: 0.7 }}
+    animate={{ scale: [0, 1.5], opacity: [0.7, 0] }}
+    transition={{
+      repeat: Infinity,
+      repeatType: "loop",
+      duration: 1,
+      delay,
+    }}
     style={{
       position: "absolute",
-      top: "10px",
-      right: "10px",
-      width: "50px",
-      height: "50px",
+      bottom: "5px",
+      left: `${x}%`,
+      width: "20px",
+      height: "5px",
       borderRadius: "50%",
-      background: "radial-gradient(circle, #FFD700, #FF8C00)",
-      boxShadow: "0 0 25px 12px rgba(255,140,0,0.6)",
+      background: "rgba(173,216,230,0.6)",
+      filter: "blur(1px)",
     }}
   />
 );
 
-// 🌬 Nhiều luồng gió
+// 🌡 Mặt trời + shimmer
+const SunEffect = () => (
+  <>
+    <motion.div
+      animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+      transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+      style={{
+        position: "absolute",
+        top: "10px",
+        right: "10px",
+        width: "50px",
+        height: "50px",
+        borderRadius: "50%",
+        background: "radial-gradient(circle, #FFD700, #FF8C00)",
+        boxShadow: "0 0 25px 12px rgba(255,140,0,0.6)",
+      }}
+    />
+    {/* shimmer nóng */}
+    <motion.div
+      animate={{ y: [0, -10, 0], opacity: [0.4, 0.8, 0.4] }}
+      transition={{ repeat: Infinity, duration: 3 }}
+      style={{
+        position: "absolute",
+        top: "60px",
+        right: "25px",
+        width: "20px",
+        height: "60px",
+        background: "linear-gradient(to top, rgba(255,200,0,0.4), transparent)",
+        filter: "blur(3px)",
+        borderRadius: "10px",
+      }}
+    />
+  </>
+);
+
+// 🌬 Luồng gió + lá bay
 const WindEffect = () => (
   <>
     {Array.from({ length: 3 }).map((_, i) => (
@@ -124,8 +165,29 @@ const WindEffect = () => (
           width: "70%",
           height: "3px",
           borderRadius: "2px",
-          background: "rgba(255,255,255,0.5)",
+          background: "rgba(255,255,255,0.4)",
           filter: "blur(2px)",
+        }}
+      />
+    ))}
+    {Array.from({ length: 5 }).map((_, i) => (
+      <motion.div
+        key={`leaf-${i}`}
+        initial={{ x: "-10%", y: Math.random() * 100 }}
+        animate={{ x: "120%", y: ["0%", "10%", "0%"] }}
+        transition={{
+          repeat: Infinity,
+          duration: 6 + Math.random() * 3,
+          ease: "easeInOut",
+          delay: i * 1.2,
+        }}
+        style={{
+          position: "absolute",
+          width: "12px",
+          height: "12px",
+          background: "rgba(255,255,255,0.7)",
+          borderRadius: "50%",
+          filter: "blur(1px)",
         }}
       />
     ))}
@@ -144,11 +206,37 @@ const WaveEffect = () => (
       width: "200%",
       height: "50px",
       background:
-        "radial-gradient(circle at 20% 40%, rgba(255,255,255,0.6) 25%, transparent 25%), radial-gradient(circle at 80% 60%, rgba(255,255,255,0.6) 25%, transparent 25%)",
+        "radial-gradient(circle at 20% 40%, rgba(255,255,255,0.5) 25%, transparent 25%), radial-gradient(circle at 80% 60%, rgba(255,255,255,0.5) 25%, transparent 25%)",
       backgroundSize: "60px 60px",
       opacity: 0.5,
     }}
   />
+);
+
+// 🌫️ Sương mù
+const FogEffect = () => (
+  <>
+    {Array.from({ length: 2 }).map((_, i) => (
+      <motion.div
+        key={i}
+        animate={{ x: ["-20%", "120%"] }}
+        transition={{
+          repeat: Infinity,
+          duration: 20 + i * 10,
+          ease: "linear",
+        }}
+        style={{
+          position: "absolute",
+          top: `${30 + i * 20}%`,
+          left: "-40%",
+          width: "200%",
+          height: "60px",
+          background: "rgba(255,255,255,0.2)",
+          filter: "blur(20px)",
+        }}
+      />
+    ))}
+  </>
 );
 
 const HourlyChart = ({ data, unit, dataKey, label }) => {
@@ -168,11 +256,21 @@ const HourlyChart = ({ data, unit, dataKey, label }) => {
   // 🌧 tạo nhiều hạt mưa
   const raindrops = useMemo(() => {
     if (dataKey !== "rain") return [];
-    return Array.from({ length: 25 }).map((_, i) => ({
+    return Array.from({ length: 20 }).map((_, i) => ({
       id: i,
       x: Math.random() * 100,
       delay: Math.random() * 2,
       duration: 1 + Math.random() * 1.2,
+    }));
+  }, [dataKey]);
+
+  // 🌧 splash
+  const splashes = useMemo(() => {
+    if (dataKey !== "rain") return [];
+    return Array.from({ length: 8 }).map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      delay: Math.random() * 2,
     }));
   }, [dataKey]);
 
@@ -194,7 +292,12 @@ const HourlyChart = ({ data, unit, dataKey, label }) => {
       {/* Hiệu ứng riêng */}
       {dataKey === "temp" && <SunEffect />}
       {dataKey === "wind" && <WindEffect />}
-      {dataKey === "humidity" && <WaveEffect />}
+      {dataKey === "humidity" && (
+        <>
+          <WaveEffect />
+          <FogEffect />
+        </>
+      )}
       {raindrops.map((drop) => (
         <RainDrop
           key={drop.id}
@@ -202,6 +305,9 @@ const HourlyChart = ({ data, unit, dataKey, label }) => {
           delay={drop.delay}
           duration={drop.duration}
         />
+      ))}
+      {splashes.map((s) => (
+        <RainSplash key={s.id} x={s.x} delay={s.delay} />
       ))}
 
       {/* Chart */}
@@ -236,11 +342,17 @@ const HourlyChart = ({ data, unit, dataKey, label }) => {
                 ? "url(#colorRain)"
                 : "url(#colorWind)"
             }
-            strokeWidth={3}
+            strokeWidth={dataKey === "temp" ? 5 : 4}
             dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
             activeDot={{ r: 7 }}
             isAnimationActive={true}
             animationDuration={1500}
+            style={{
+              filter:
+                dataKey === "temp"
+                  ? "drop-shadow(0px 0px 8px rgba(255, 215, 0, 0.9))"
+                  : "none",
+            }}
           />
         </LineChart>
       </ResponsiveContainer>
