@@ -15,7 +15,52 @@ const News = () => {
       setLoading(true);
       setErrorMsg("");
       const data = await fetchWeatherNews();
-      setNewsList(Array.isArray(data) ? data : []);
+
+      // 🔹 Lọc chỉ tin tức có từ khóa liên quan đến thời tiết
+      const weatherKeywords = [
+        "weather",
+        "thời tiết",
+        "bão",
+        "storm",
+        "rain",
+        "mưa",
+        "nắng",
+        "heatwave",
+        "snow",
+        "tuyết",
+        "climate",
+        "khí hậu",
+        "Nhiệt độ",
+        "temperature",
+        "dự báo",
+        "forecast",
+        "dự báo thời tiết",
+        "dự báo khí hậu",
+        "dự báo nhiệt độ",
+        "dự báo mưa",
+        "dự báo bão",
+        "dự báo tuyết",
+        "dự báo nắng",
+        "dự báo gió",
+
+      ];
+
+      const filteredNews = Array.isArray(data)
+        ? data.filter(item => {
+            const text = (
+              (item.title || "") +
+              " " +
+              (item.description || "") +
+              " " +
+              (item.content || "")
+            ).toLowerCase();
+            return weatherKeywords.some(keyword =>
+              text.includes(keyword.toLowerCase())
+            );
+          })
+        : [];
+
+      setNewsList(filteredNews);
     } catch (err) {
       console.error(err);
       const msg = err.message || "Không thể tải tin tức thời tiết";

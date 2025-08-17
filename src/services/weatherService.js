@@ -18,7 +18,7 @@ export const fetchWeatherNews = async () => {
         q: "thời tiết",
         language: "vi",
         sortBy: "publishedAt",
-        pageSize: 12, // số tin muốn lấy
+        pageSize: 20, // số tin muốn lấy
         apiKey: NEWSAPI_KEY,
       },
     });
