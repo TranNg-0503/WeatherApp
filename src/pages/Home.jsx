@@ -1,4 +1,4 @@
-import stylesHome from "./Home.styles";
+import stylesHome from "../css/Home.styles";
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { Input, Spin, Typography, Card, Button, Radio, Switch } from "antd";
 import { ThemeContext } from "../contexts/ThemeContext";
@@ -72,8 +72,6 @@ const Home = () => {
     setLoading(true);
     try {
       const apiUnit = getApiUnit(unit);
-
-      // Lấy current và forecast
 
       // Lấy current và forecast
       const current = await fetchCurrentWeather(cityName, apiUnit);

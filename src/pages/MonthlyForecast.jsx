@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Card, Tooltip, Button } from "antd";
 import { fetchMonthlyWeather } from "../services/weatherService";
-import "./MonthlyForecast.css";
+import "../css/MonthlyForecast.css";
 import WeatherTempChart from "../components/WeatherTempChart";
 import WeatherConditionPieChart from "../components/WeatherConditionPieChart";
 import RainfallBarChart from "../components/RainfallBarChart";
