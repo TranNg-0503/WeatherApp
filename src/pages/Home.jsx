@@ -19,7 +19,6 @@ const Home = () => {
 
   const [city, setCity] = useState("Ho Chi Minh");
   const [weatherData, setWeatherData] = useState(null);
-  const [hourlyForecast, setHourlyForecast] = useState([]); // có thể không dùng ngoài debug
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [groupedByDay, setGroupedByDay] = useState({});
@@ -33,7 +32,6 @@ const Home = () => {
   const [tempUnit, setTempUnit] = useState("C"); // "C" hoặc "F"
   const dateScrollRef = useRef(null);
   const hourlyScrollRef = useRef(null);
-  const [showHourlyScrollButtons, setShowHourlyScrollButtons] = useState(false);
 
   // Chuyển tempUnit thành unit của API
   const getApiUnit = (unit) => (unit === "C" ? "metric" : "imperial");
@@ -48,13 +46,6 @@ const Home = () => {
     }
   };
 
-  const checkHourlyOverflow = () => {
-    const el = hourlyScrollRef.current;
-    if (el) {
-      setShowHourlyScrollButtons(el.scrollWidth > el.clientWidth);
-    }
-  };
-
   // === Helpers: tạo khóa ngày & kiểm tra thuộc ngày theo timezone offset (giây) ===
   const makeDateKey = (unixUtcSec, tzOffsetSec) => {
     // cộng offset -> tạo Date tại "giờ địa phương thành phố", sau đó lấy UTC parts để tránh dính timezone máy
@@ -64,9 +55,6 @@ const Home = () => {
     const day = String(d.getUTCDate()).padStart(2, "0");
     return `${y}-${m}-${day}`; // YYYY-MM-DD
   };
-
-  const isInDateKey = (unixUtcSec, tzOffsetSec, dateKey) =>
-    makeDateKey(unixUtcSec, tzOffsetSec) === dateKey;
 
   const loadWeather = async (cityName, unit = tempUnit) => {
     setLoading(true);
@@ -87,8 +75,6 @@ const Home = () => {
       const apiTzOffset =
         // Ưu tiên offset từ forecast.city, sau đó current.timezone; fallback +7h cho VN
         forecastRes?.city?.timezone ?? current?.timezone ?? 7 * 3600; // giây
-
-      setHourlyForecast(list);
 
       // Group theo ngày dựa trên timezone offset của city
       const groups = {};
@@ -143,10 +129,6 @@ const Home = () => {
     loadWeather(city, tempUnit);
     loadMonthlyWeather(city, monthOffset);
   }, [tempUnit]);
-
-  useEffect(() => {
-    checkHourlyOverflow();
-  }, [selectedDate, groupedByDay]);
 
   const getIconFromDate = (dateStr) => {
     const entries = groupedByDay[dateStr];

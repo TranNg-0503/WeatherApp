@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 import {
   getBackgroundGradient,
@@ -55,7 +55,7 @@ const HourlyChart = ({ data, unit, dataKey, label }) => {
   }, [dataKey]);
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, scale: 0.9, y: 30 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       whileHover={{ scale: 1.03 }}
@@ -134,7 +134,7 @@ const HourlyChart = ({ data, unit, dataKey, label }) => {
           />
         </LineChart>
       </ResponsiveContainer>
-    </motion.div>
+    </Motion.div>
   );
 };
 

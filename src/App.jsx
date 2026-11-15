@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { ConfigProvider, theme as antdTheme } from "antd";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Routing from "./Routing";
-import { ThemeProvider, ThemeContext } from "./contexts/ThemeContext"; // Thêm dòng này
+import { ThemeProvider, ThemeContext } from "./contexts/ThemeContext";
 
 const ThemedApp = () => {
   const { darkMode } = useContext(ThemeContext);

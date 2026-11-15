@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion as Motion } from "framer-motion";
 
 // 🎨 Gradient nền theo loại dữ liệu
 export const getBackgroundGradient = (dataKey) => {
@@ -46,7 +46,7 @@ export const getLineGradient = (dataKey) => {
 
 // 🌧 Hạt mưa
 export const RainDrop = ({ x, delay, duration }) => (
-  <motion.div
+  <Motion.div
     initial={{ y: -20, opacity: 0 }}
     animate={{ y: "110%", opacity: [0, 1, 0] }}
     transition={{ repeat: Infinity, repeatType: "loop", ease: "easeIn", delay, duration }}
@@ -63,7 +63,7 @@ export const RainDrop = ({ x, delay, duration }) => (
 
 // 💦 Splash
 export const RainSplash = ({ x, delay }) => (
-  <motion.div
+  <Motion.div
     initial={{ scale: 0, opacity: 0.7 }}
     animate={{ scale: [0, 1.5], opacity: [0.7, 0] }}
     transition={{ repeat: Infinity, repeatType: "loop", duration: 1, delay }}
@@ -83,7 +83,7 @@ export const RainSplash = ({ x, delay }) => (
 // 🌡 Mặt trời
 export const SunEffect = () => (
   <>
-    <motion.div
+    <Motion.div
       animate={{ rotate: 360, scale: [1, 1.1, 1] }}
       transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
       style={{
@@ -97,7 +97,7 @@ export const SunEffect = () => (
         boxShadow: "0 0 25px 12px rgba(255,140,0,0.6)",
       }}
     />
-    <motion.div
+    <Motion.div
       animate={{ y: [0, -10, 0], opacity: [0.4, 0.8, 0.4] }}
       transition={{ repeat: Infinity, duration: 3 }}
       style={{
@@ -118,7 +118,7 @@ export const SunEffect = () => (
 export const WindEffect = () => (
   <>
     {Array.from({ length: 3 }).map((_, i) => (
-      <motion.div
+      <Motion.div
         key={i}
         animate={{ x: ["-20%", "120%"] }}
         transition={{ repeat: Infinity, duration: 4 + i * 2, ease: "linear", delay: i }}
@@ -139,7 +139,7 @@ export const WindEffect = () => (
 
 // 💧 Sóng
 export const WaveEffect = () => (
-  <motion.div
+  <Motion.div
     animate={{ x: ["0%", "-100%"] }}
     transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
     style={{
@@ -160,7 +160,7 @@ export const WaveEffect = () => (
 export const FogEffect = () => (
   <>
     {Array.from({ length: 2 }).map((_, i) => (
-      <motion.div
+      <Motion.div
         key={i}
         animate={{ x: ["-30%", "130%"] }}
         transition={{ repeat: Infinity, duration: 25 + i * 10, ease: "linear" }}

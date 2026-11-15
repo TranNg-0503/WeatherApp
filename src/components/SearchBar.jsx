@@ -47,7 +47,7 @@ const SearchBar = ({ onSelectLocation }) => {
     try {
       const location = JSON.parse(value);
       onSelectLocation(location); // Gọi callback khi user chọn 1 item
-    } catch (err) {
+    } catch {
       message.error("Lỗi khi chọn địa điểm.");
     }
   };
